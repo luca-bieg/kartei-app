@@ -1,0 +1,3518 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Kartei — Kommentatoren-Datenbank</title>
+
+<!-- iPad / iOS Web-App Einstellungen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kartei">
+<meta name="theme-color" content="#12161c">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12161c;
+    --panel: #1b212a;
+    --panel-2: #212a35;
+    --border: #2b3441;
+    --text: #ece9e2;
+    --text-muted: #8b94a3;
+    --accent: #e63946;
+    --accent-soft: rgba(230,57,70,0.14);
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:1160px; margin:0 auto; padding:28px 20px 80px;
+    padding-top:max(28px, env(safe-area-inset-top));
+    padding-left:max(20px, env(safe-area-inset-left));
+    padding-right:max(20px, env(safe-area-inset-right));
+    padding-bottom:max(80px, env(safe-area-inset-bottom));
+  }
+  html{ background:var(--bg); }
+  @media (display-mode: standalone){
+    body{ overscroll-behavior-y:none; }
+  }
+
+  /* Topbar */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:28px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{ color:var(--accent); font-size:14px; animation:pulse 2.4s infinite ease-in-out; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+  .brand h1{ font-family:'Oswald', sans-serif; font-weight:600; font-size:22px; letter-spacing:0.04em; text-transform:uppercase; margin:0; line-height:1; }
+  .brand p{ margin:2px 0 0; font-size:12.5px; color:var(--text-muted); }
+
+  .team-pill{
+    display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--border);
+    border-radius:999px; padding:8px 16px; font-family:'IBM Plex Mono', monospace; font-size:12px;
+    color:var(--text-muted); cursor:pointer; transition:all .15s ease;
+  }
+  .team-pill:hover{ color:var(--text); border-color:var(--text-muted); }
+  .team-pill .edit-icon{ color:var(--accent); font-size:11px; }
+
+  .data-actions{ display:flex; gap:8px; }
+  .io-btn{
+    background:none; border:1px solid var(--border); border-radius:999px; color:var(--text-muted);
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; padding:8px 14px; cursor:pointer;
+    transition:all .15s ease; white-space:nowrap;
+  }
+  .io-btn:hover{ color:var(--text); border-color:var(--text-muted); }
+
+  .mode-toggle{ display:flex; gap:6px; margin-bottom:6px; }
+  .mode-btn{
+    flex:1; background:var(--panel-2); border:1px solid var(--border); border-radius:6px;
+    color:var(--text-muted); font-family:'IBM Plex Sans', sans-serif; font-size:12px; font-weight:500;
+    padding:7px 8px; cursor:pointer; transition:all .15s ease;
+  }
+  .mode-btn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .mode-btn:not(.active):hover{ color:var(--text); }
+
+  .liveticker-btn{
+    display:flex; align-items:center; gap:6px; background:var(--accent-soft); border:1px solid var(--accent);
+    border-radius:999px; padding:8px 16px; font-family:'IBM Plex Mono', monospace; font-size:12px;
+    color:var(--accent); text-decoration:none; cursor:pointer; transition:all .15s ease; white-space:nowrap;
+  }
+  .liveticker-btn:hover{ background:var(--accent); color:#fff; }
+  .liveticker-dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); animation:pulse 1.4s infinite ease-in-out; }
+  .liveticker-btn:hover .liveticker-dot{ background:#fff; }
+
+  .tabs{ display:flex; background:var(--panel); border:1px solid var(--border); border-radius:999px; padding:4px; gap:2px; flex-wrap:wrap; }
+  .tab{
+    font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:500;
+    background:transparent; color:var(--text-muted); border:none; padding:9px 16px;
+    border-radius:999px; cursor:pointer; transition:all .15s ease; white-space:nowrap;
+  }
+  .tab.active{ background:var(--accent); color:#fff; }
+  .tab:not(.active):hover{ color:var(--text); }
+
+  .mode-switch{ display:flex; background:var(--panel-2); border:1px solid var(--border); border-radius:999px; padding:3px; gap:2px; margin-bottom:14px; width:fit-content; }
+  .mode-switch-btn{
+    font-family:'Oswald', sans-serif; font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;
+    background:transparent; color:var(--text-muted); border:none; padding:8px 18px; border-radius:999px;
+    cursor:pointer; transition:all .15s ease;
+  }
+  .mode-switch-btn.active{ background:var(--accent); color:#fff; }
+  .mode-switch-btn:not(.active):hover{ color:var(--text); }
+
+  main{ position:relative; }
+  .page{ display:none; }
+  .page.active{ display:block; animation:fade .2s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- Input pages ---- */
+  .form-page{ display:none; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap:20px; }
+  .form-page.active{ display:grid; }
+  @media (max-width:720px){ .form-page.active{ grid-template-columns:1fr; } }
+
+  form{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:20px; display:flex; flex-direction:column; gap:14px; align-self:start; min-width:0; }
+  form h2{ font-family:'Oswald', sans-serif; font-size:15px; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 2px; color:var(--text-muted); font-weight:500; }
+  form h2:not(:first-child){ margin-top:6px; }
+  label{ display:flex; flex-direction:column; gap:6px; font-size:12.5px; color:var(--text-muted); font-weight:500; min-width:0; }
+  input, textarea, select{
+    font-family:'IBM Plex Sans', sans-serif; background:var(--panel-2); border:1px solid var(--border);
+    border-radius:7px; padding:9px 11px; color:var(--text); font-size:14px; outline:none;
+    transition:border-color .15s ease; width:100%; min-width:0; box-sizing:border-box;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--accent); }
+  textarea{ min-height:90px; resize:vertical; font-family:'IBM Plex Sans', sans-serif; line-height:1.4; }
+  textarea.remarks-field{ min-height:60px; }
+  .custom-team-input{ margin-top:6px; }
+  button[type=submit]{
+    margin-top:4px; background:var(--accent); color:#fff; border:none; border-radius:7px;
+    padding:11px; font-size:13.5px; font-weight:600; letter-spacing:0.02em; cursor:pointer;
+    font-family:'IBM Plex Sans', sans-serif; transition:filter .15s ease;
+  }
+  button[type=submit]:hover{ filter:brightness(1.1); }
+  .hint{ font-size:11.5px; color:var(--text-muted); margin-top:-6px; }
+
+  .fields-row-3{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap:10px; }
+  @media (max-width:480px){ .fields-row-3{ grid-template-columns:1fr; } }
+
+  .fields-row-2{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; }
+  @media (max-width:420px){ .fields-row-2{ grid-template-columns:1fr; } }
+
+  .color-picker{ display:flex; flex-wrap:wrap; gap:9px; padding-top:2px; }
+  .color-swatch{
+    width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer;
+    padding:0; transition:transform .12s ease, border-color .15s ease; flex-shrink:0;
+  }
+  .color-swatch:hover{ transform:scale(1.12); }
+  .color-swatch.selected{ border-color:var(--text); box-shadow:0 0 0 2px var(--panel); }
+  .color-swatch-none{
+    background:var(--panel-2); border:1px dashed var(--border) !important; color:var(--text-muted);
+    font-size:12px; display:flex; align-items:center; justify-content:center;
+  }
+  .list-panel{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+  .list-head{ display:flex; align-items:center; justify-content:space-between; }
+  .mini-search-input{ font-size:13px; }
+  .list-head h2{ font-family:'Oswald', sans-serif; font-size:15px; text-transform:uppercase; letter-spacing:0.05em; margin:0; color:var(--text-muted); font-weight:500; }
+  .count-badge{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-muted); background:var(--panel-2); border:1px solid var(--border); border-radius:999px; padding:2px 10px; }
+  .entry-list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; align-items:start; }
+
+  .card{
+    position:relative; background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px 14px 22px; overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--tag-color, var(--accent));
+  }
+  .card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:4px; }
+  .card-title{ font-weight:600; font-size:14.5px; }
+  .card-cat{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); background:var(--accent-soft); padding:2px 8px; border-radius:5px; white-space:nowrap; }
+  .card-text{ font-size:13px; color:var(--text-muted); line-height:1.5; margin:4px 0 8px; white-space:pre-wrap; }
+  .card-actions{ display:flex; gap:2px; flex-shrink:0; }
+  .del-btn{
+    background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px;
+    padding:2px 4px; border-radius:5px; flex-shrink:0;
+  }
+  .del-btn:hover{ color:var(--accent); }
+  .edit-btn{
+    background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px;
+    padding:2px 6px; border-radius:5px; flex-shrink:0; line-height:1;
+  }
+  .edit-btn:hover{ color:var(--text); }
+
+  .form-actions{ display:flex; gap:10px; margin-top:4px; }
+  .form-actions button[type=submit]{ flex:1; margin-top:0; }
+  .form-cancel-btn{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:7px; color:var(--text-muted);
+    font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:600; padding:11px 16px; cursor:pointer;
+  }
+  .form-cancel-btn:hover{ color:var(--text); }
+  .editing-banner{
+    font-size:11.5px; color:var(--accent); background:var(--accent-soft); border-radius:6px;
+    padding:6px 10px; margin-top:-6px;
+  }
+
+  .empty{ color:var(--text-muted); font-size:13px; text-align:center; padding:30px 10px; border:1px dashed var(--border); border-radius:8px; }
+
+  .stat-row{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:6px 0 4px; }
+  .stat-type{ font-size:13px; color:var(--text-muted); }
+  .stat-value{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:19px; color:var(--accent); white-space:nowrap; }
+  .stat-meta{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-muted); }
+  .team-label{ font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:600; color:var(--text); }
+  .remarks-line{ font-size:12px; color:var(--text-muted); font-style:italic; margin-top:6px; line-height:1.4; white-space:pre-wrap; }
+
+  .penalty-grid{ display:flex; gap:10px; margin:8px 0 2px; }
+  .penalty-chip{
+    display:flex; flex-direction:column; align-items:center; gap:2px; background:var(--panel-2);
+    border:1px solid var(--border); border-radius:7px; padding:8px 6px; flex:1;
+  }
+  .penalty-chip .p-label{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); }
+  .penalty-chip .p-value{ font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:17px; color:var(--accent); }
+
+  /* ---- Search page ---- */
+  .search-bar{ margin-bottom:14px; }
+  .search-bar input{ width:100%; padding:13px 16px; font-size:15px; border-radius:9px; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; background:var(--panel); color:var(--text-muted);
+    border:1px solid var(--border); padding:6px 13px; border-radius:999px; cursor:pointer; transition:all .15s ease;
+  }
+  .chip.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .chip:not(.active):hover{ color:var(--text); border-color:var(--text-muted); }
+
+  .results{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; align-items:start; }
+  .rcard{
+    position:relative; background:var(--panel); border:1px solid var(--border); border-radius:9px;
+    padding:16px 18px 16px 24px;
+  }
+  .rcard::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--tag-color, var(--accent)); }
+  .rcard::after{
+    content:attr(data-index); position:absolute; top:10px; right:14px; font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; color:var(--text-muted); letter-spacing:0.04em;
+  }
+  .rcard-title{ font-weight:600; font-size:15.5px; margin-right:50px; }
+  .rcard-cat{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--tag-color, var(--accent)); background:var(--panel-2); padding:2px 8px; border-radius:5px; margin:6px 0 8px; }
+  .rcard-text{ font-size:13.5px; line-height:1.55; color:var(--text); margin-bottom:10px; white-space:pre-wrap; }
+
+  .footer-note{ text-align:center; color:var(--text-muted); font-size:11.5px; margin-top:40px; }
+
+  /* ---- Setup screen ---- */
+  .hidden{ display:none !important; }
+  .setup-screen{
+    position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center;
+    padding:20px; z-index:100;
+  }
+  .setup-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:36px 30px; max-width:360px; width:100%; text-align:center;
+  }
+  .setup-mark{ color:var(--accent); font-size:20px; margin-bottom:8px; animation:pulse 2.4s infinite ease-in-out; }
+  .setup-card h1{ font-family:'Oswald', sans-serif; font-weight:600; font-size:22px; letter-spacing:0.04em; text-transform:uppercase; margin:0 0 6px; }
+  .setup-sub{ color:var(--text-muted); font-size:13px; margin:0 0 22px; line-height:1.5; }
+  .setup-card form{ background:none; border:none; padding:0; text-align:left; }
+
+  /* ---- Matchday page ---- */
+  .officials-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; }
+  @media (max-width:480px){ .officials-grid{ grid-template-columns:1fr; } }
+
+  .upload-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:480px){ .upload-grid{ grid-template-columns:1fr; } }
+
+  .upload-box{
+    background:var(--panel-2); border:1px dashed var(--border); border-radius:8px; padding:14px;
+    display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center;
+  }
+  .upload-title{ font-family:'Oswald', sans-serif; font-size:11.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); }
+  .upload-drop{
+    cursor:pointer; width:100%; min-height:90px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px;
+  }
+  .upload-preview{ max-width:100%; max-height:150px; border-radius:6px; object-fit:cover; }
+  .upload-placeholder{ font-size:12px; color:var(--text-muted); }
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .remove-img-btn{ background:none; border:none; color:var(--text-muted); font-size:11px; cursor:pointer; text-decoration:underline; }
+  .remove-img-btn:hover{ color:var(--accent); }
+
+  .matchday-actions{ display:flex; align-items:center; gap:14px; margin-top:2px; }
+  .save-status{ font-size:12px; color:var(--accent); opacity:0; transition:opacity .3s ease; }
+
+  /* ---- Analyse ---- */
+  .analysis-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+  @media (max-width:720px){ .analysis-grid{ grid-template-columns:1fr; } }
+  .analysis-box{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+  .analysis-box h2{ font-family:'Oswald', sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 14px; color:var(--text); font-weight:600; }
+  .analysis-block{ margin-bottom:14px; }
+  .analysis-block:last-child{ margin-bottom:0; }
+  .analysis-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); display:block; margin-bottom:4px; }
+  .analysis-value{ font-size:13px; color:var(--text); line-height:1.5; white-space:pre-wrap; }
+  .analysis-value.empty-value{ color:var(--text-muted); font-style:italic; }
+  .analysis-value.diff-positive{ color:#2ac6b3; font-weight:600; }
+  .analysis-value.diff-negative{ color:var(--accent); font-weight:600; }
+
+  .chip-multiselect{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip-select-btn{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:999px; padding:7px 14px;
+    font-size:12.5px; color:var(--text-muted); cursor:pointer; font-family:'IBM Plex Sans', sans-serif;
+    transition:all .15s ease;
+  }
+  .chip-select-btn:hover:not(.selected){ color:var(--text); border-color:var(--text-muted); }
+  .chip-select-btn.selected{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .chip-select-count{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .chip-select-count.ok{ color:var(--accent); }
+
+  .goal-diff-display{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-muted); margin-top:-4px; display:flex; align-items:center; gap:6px; }
+  .goal-diff-display b{ font-size:13.5px; color:var(--text); font-weight:600; }
+  .goal-diff-display.positive b{ color:#2ac6b3; }
+  .goal-diff-display.negative b{ color:var(--accent); }
+
+  .status-fraglich{ color:#f4d488; background:rgba(244,212,136,0.14); }
+  .status-verletzt{ color:#f35561; background:rgba(243,85,97,0.14); }
+  .status-gesperrt{ color:#a1a9b6; background:rgba(161,169,182,0.18); }
+  .status-badge{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; padding:2px 8px; border-radius:5px; font-weight:600; white-space:nowrap; margin-top:6px; }
+  .p-status{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.03em; padding:1px 6px; border-radius:4px; margin-left:6px; font-weight:600; }
+
+  .milestone-block{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:10px 12px; margin-bottom:16px; }
+  .milestone-label{ display:block; font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent); margin-bottom:6px; font-weight:600; }
+  .milestone-line{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:2px 0; }
+  .milestone-line .ml-label{ color:var(--text-muted); }
+  .milestone-line .ml-value{ font-weight:600; color:var(--text); text-align:right; }
+
+
+  .h2h-summary{ display:flex; gap:8px; margin-bottom:2px; }
+  .h2h-summary-chip{ flex:1; background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px 6px; text-align:center; min-width:0; }
+  .h2h-summary-chip .n{ display:block; font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:18px; color:var(--text); }
+  .h2h-summary-chip .l{ display:block; font-size:9.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.03em; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .h2h-score-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:6px 0 4px; }
+  .h2h-team{ font-size:12.5px; color:var(--text-muted); flex:1; min-width:0; }
+  .h2h-team:last-child{ text-align:right; }
+  .h2h-team.h2h-winner{ color:var(--text); font-weight:600; }
+  .h2h-score{ font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:16px; color:var(--accent); white-space:nowrap; flex-shrink:0; }
+
+  .team-stat-input-row{ display:grid; grid-template-columns:1fr 1fr auto; gap:8px; }
+  .team-stat-add-btn{
+    background:var(--panel-2); border:1px solid var(--border); border-radius:7px; color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:600; padding:0 14px; cursor:pointer;
+    white-space:nowrap; transition:all .15s ease;
+  }
+  .team-stat-add-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .team-stats-list{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .team-stat-chip{
+    display:flex; align-items:center; gap:8px; background:var(--panel-2); border:1px solid var(--border);
+    border-radius:999px; padding:6px 8px 6px 14px; font-size:12px;
+  }
+  .team-stat-chip .k{ color:var(--text-muted); }
+  .team-stat-chip .v{ font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--accent); }
+  .team-stat-chip button{
+    background:var(--panel); border:none; color:var(--text-muted); width:18px; height:18px; border-radius:50%;
+    cursor:pointer; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center;
+  }
+  .team-stat-chip button:hover{ color:var(--accent); }
+
+
+  /* ---- Formvergleich ---- */
+  .form-compare-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; margin-bottom:16px; }
+  @media (max-width:640px){ .form-compare-grid{ grid-template-columns:1fr; } }
+  .form-compare-col{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .form-compare-col h2{ font-family:'Oswald', sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.04em; margin:0 0 2px; color:var(--text); font-weight:600; text-align:center; }
+  .form-compare-value{ font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:16px; }
+  .form-view-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+  @media (max-width:640px){ .form-view-grid{ grid-template-columns:1fr; } }
+  .form-view-col{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+  .form-view-col h2{ font-family:'Oswald', sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.04em; margin:0 0 14px; color:var(--text); font-weight:600; text-align:center; }
+
+  .recent-games-heading{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--text-muted); margin-top:6px; padding-top:12px; border-top:1px solid var(--border);
+  }
+  .recent-game-block{ background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:8px; }
+  .recent-game-block .rg-title{ font-family:'Oswald', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); }
+  .rg-title-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .rg-venue-select{ font-size:10.5px; padding:3px 7px; width:auto; }
+  .rgv-venue{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); background:var(--panel); border:1px solid var(--border); border-radius:4px; padding:1px 6px; margin-right:6px; }
+  .recent-game-fields{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr); gap:8px; }
+  @media (max-width:480px){ .recent-game-fields{ grid-template-columns:1fr; } }
+  .recent-game-fields label{ font-size:10.5px; gap:3px; }
+  .recent-game-fields input{ font-size:12.5px; padding:7px 8px; }
+
+  .recent-games-view{ display:flex; flex-direction:column; gap:8px; }
+  .recent-game-view-card{ background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:12px; }
+  .recent-game-view-card .rgv-top{ display:flex; justify-content:space-between; gap:8px; font-weight:600; }
+  .recent-game-view-card .rgv-meta{ color:var(--text-muted); margin-top:2px; font-size:11.5px; }
+
+  /* ---- Dashboard ---- */
+  .dashboard-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+  @media (max-width:720px){ .dashboard-grid{ grid-template-columns:1fr; } }
+  .dashboard-subview{ display:none; }
+  .dashboard-subview.active{ display:block; }
+  .dash-subtabs{ max-width:400px; margin-bottom:18px; }
+
+  .dashboard-photos-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+  @media (max-width:720px){ .dashboard-photos-grid{ grid-template-columns:1fr; } }
+  .dashboard-photo-box{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+  .dashboard-photo-box h2{ font-family:'Oswald', sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 14px; color:var(--text); font-weight:600; }
+  .dashboard-photo-img{ width:100%; border-radius:8px; display:block; cursor:zoom-in; transition:opacity .15s ease; }
+  .dashboard-photo-img:hover{ opacity:0.88; }
+
+  .lightbox-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.88); display:flex; align-items:center;
+    justify-content:center; padding:24px; z-index:250; cursor:zoom-out;
+  }
+  .lightbox-img{ max-width:95vw; max-height:92vh; border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+  .dashboard-col{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+  .dashboard-col h2{ font-family:'Oswald', sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 14px; color:var(--text); font-weight:600; }
+  .dashboard-player-list{ display:flex; flex-direction:column; gap:8px; }
+  .player-card{
+    display:flex; align-items:center; gap:12px; background:var(--panel-2); border:1px solid var(--border);
+    border-radius:8px; padding:10px 14px; cursor:pointer; transition:all .15s ease; text-align:left; width:100%;
+    font-family:'IBM Plex Sans', sans-serif; color:var(--text);
+  }
+  .player-card:hover{ border-color:var(--accent); transform:translateX(2px); }
+  .player-card .p-number{
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:15px; color:var(--accent);
+    background:var(--accent-soft); width:32px; height:32px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .player-card .p-info{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .player-card .p-name{ font-weight:600; font-size:13.5px; }
+  .player-card .p-position{ font-size:11.5px; color:var(--text-muted); }
+
+  /* ---- Player detail modal ---- */
+  .player-detail-box{ max-width:440px; text-align:left; }
+  .player-detail-header{ display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+  .player-detail-header .p-number{
+    font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:20px; color:var(--accent);
+    background:var(--accent-soft); width:46px; height:46px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .player-detail-header h3{ margin:0; font-family:'Oswald', sans-serif; font-size:19px; text-transform:uppercase; letter-spacing:0.03em; }
+  .player-detail-header .p-team-label{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .player-detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+  .pdl-item{ text-align:center; }
+  .pdl-label{ display:block; font-size:10px; color:var(--text-muted); margin-bottom:2px; }
+  .pdl-value{ font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:18px; color:#2ac6b3; }
+  .player-detail-stat{ background:var(--panel-2); border:1px solid var(--border); border-radius:7px; padding:8px 10px; }
+  .player-detail-stat .pd-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); display:block; margin-bottom:2px; }
+  .player-detail-stat .pd-value{ font-size:14px; font-weight:600; }
+  .player-detail-related{ max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .player-detail-related .related-item{
+    background:var(--panel-2); border:1px solid var(--border); border-left-width:3px;
+    border-left-color:var(--tag-color, var(--border)); border-radius:7px; padding:8px 10px;
+    font-size:12.5px; width:100%; text-align:left; cursor:pointer; transition:all .15s ease;
+    font-family:'IBM Plex Sans', sans-serif;
+  }
+  .player-detail-related .related-item:hover{ border-color:var(--accent); transform:translateX(2px); }
+  .player-detail-related .related-cat{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; color:var(--accent); letter-spacing:0.05em; }
+  .player-detail-related .related-body{ color:var(--text-muted); margin-top:2px; line-height:1.4; max-height:2.8em; overflow:hidden; text-overflow:ellipsis; }
+  .player-detail-empty{ font-size:12.5px; color:var(--text-muted); font-style:italic; margin-bottom:16px; }
+
+  .related-full-box{ max-width:440px; text-align:left; border-left-width:4px; border-left-color:var(--tag-color, var(--accent)); }
+  .related-full-title{ font-family:'Oswald', sans-serif; font-size:19px; text-transform:uppercase; letter-spacing:0.03em; margin:0 0 8px; }
+
+  /* ---- Confirm modal ---- */
+  .confirm-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center;
+    justify-content:center; padding:20px; z-index:200;
+  }
+  .confirm-box{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px; max-width:380px; width:100%;
+  }
+  .confirm-box p{ margin:0 0 20px; font-size:14px; line-height:1.5; color:var(--text); }
+  .confirm-actions{ display:flex; justify-content:flex-end; gap:10px; }
+  .confirm-actions button{ font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:600; border-radius:7px; padding:9px 16px; cursor:pointer; border:none; }
+  .confirm-cancel-btn{ background:var(--panel-2); color:var(--text-muted); border:1px solid var(--border) !important; }
+  .confirm-cancel-btn:hover{ color:var(--text); }
+  .confirm-ok-btn{ background:var(--accent); color:#fff; }
+  .confirm-ok-btn:hover{ filter:brightness(1.1); }
+
+  /* ---- Toast ---- */
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--panel);
+    border:1px solid var(--border); border-left:3px solid var(--accent); color:var(--text);
+    padding:12px 20px; border-radius:8px; font-size:13px; max-width:90vw; z-index:200;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+  }
+  .toast.toast-error{ border-left-color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="setup-screen" class="setup-screen">
+  <div class="setup-card">
+    <div class="setup-mark">●</div>
+    <h1>Kartei</h1>
+    <p class="setup-sub">Bevor es losgeht: Wer spielt gegeneinander?</p>
+    <form id="setup-form">
+      <label>Heimteam
+        <input id="setup-home" placeholder="z. B. Bayern München" required>
+      </label>
+      <label>Gastteam
+        <input id="setup-away" placeholder="z. B. Borussia Dortmund" required>
+      </label>
+      <button type="submit">Los geht's</button>
+    </form>
+  </div>
+</div>
+
+<div class="app hidden" id="app-shell">
+
+  <div class="mode-switch" id="mode-switch">
+    <button type="button" class="mode-switch-btn active" data-mode="entry">Erfassen</button>
+    <button type="button" class="mode-switch-btn" data-mode="overview">Übersicht</button>
+  </div>
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">●</span>
+      <div>
+        <h1>Kartei</h1>
+        <p>Kommentatoren-Datenbank</p>
+      </div>
+    </div>
+    <button id="team-edit-btn" class="team-pill" title="Teams ändern">
+      <span id="team-label">Heim vs Gast</span><span class="edit-icon">✎</span>
+    </button>
+    <a id="liveticker-btn" class="liveticker-btn hidden" href="#" target="_blank" rel="noopener">
+      <span class="liveticker-dot"></span> Liveticker
+    </a>
+    <nav class="tabs">
+      <button class="tab active" data-page="input" data-mode="entry">Eingabe</button>
+      <button class="tab" data-page="stats" data-mode="entry">Statistik</button>
+      <button class="tab" data-page="penalties" data-mode="entry">Strafen</button>
+      <button class="tab" data-page="players" data-mode="entry">Spieler</button>
+      <button class="tab" data-page="analysis" data-mode="entry">Analyse</button>
+      <button class="tab" data-page="form" data-mode="entry">Form</button>
+      <button class="tab" data-page="h2h" data-mode="entry">Vergleich</button>
+      <button class="tab" data-page="matchday" data-mode="entry">Spieltag</button>
+      <button class="tab" data-page="dashboard" data-mode="overview">Dashboard</button>
+      <button class="tab" data-page="search" data-mode="overview">Suche</button>
+    </nav>
+    <div class="data-actions">
+      <button id="print-export-btn" class="io-btn" title="Druckfertige Datei herunterladen (2 Seiten pro Team) — zum Öffnen und Drucken/Als PDF speichern im Browser">Druckversion</button>
+      <button id="export-btn" class="io-btn" title="Alle Daten als Datei speichern">Exportieren</button>
+      <label for="import-file-input" class="io-btn" title="Export-Datei wieder einlesen" style="cursor:pointer;">Importieren</label>
+      <input type="file" id="import-file-input" accept="application/json,.json" class="visually-hidden">
+    </div>
+  </div>
+
+  <main>
+    <section id="page-input" class="page form-page active">
+      <form id="entry-form">
+        <h2>Neuer Eintrag</h2>
+        <label>Team
+          <select id="f-team">
+            <option value="">– kein Team –</option>
+          </select>
+          <input id="f-team-custom" class="custom-team-input hidden" placeholder="Team eingeben">
+        </label>
+        <label>Spieler (optional)
+          <select id="f-player">
+            <option value="">– kein Spieler –</option>
+          </select>
+        </label>
+        <label>Kategorie
+          <input id="f-category" list="cat-list" placeholder="z. B. Spieler">
+          <datalist id="cat-list">
+            <option value="Spieler"></option>
+            <option value="Team"></option>
+            <option value="Historie"></option>
+            <option value="Rekord"></option>
+            <option value="Sonstiges"></option>
+          </datalist>
+        </label>
+        <label>Farbe (Tag)
+          <div class="color-picker" id="f-color-picker"></div>
+          <input type="hidden" id="f-color" value="">
+        </label>
+        <label>Text
+          <textarea id="f-text" placeholder="Der Fakt bzw. die Notiz…" required></textarea>
+        </label>
+        <label>Bemerkungen (optional)
+          <textarea id="f-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit" id="entry-submit-btn">Eintrag speichern</button>
+          <button type="button" id="entry-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
+        </div>
+      </form>
+
+      <div class="list-panel">
+        <div class="list-head">
+          <h2>Gespeicherte Einträge</h2>
+          <span id="count-badge" class="count-badge">0</span>
+        </div>
+        <input type="text" id="entry-search" class="mini-search-input" placeholder="In Einträgen suchen…" autocomplete="off">
+        <div id="entry-list" class="entry-list"></div>
+      </div>
+    </section>
+
+    <section id="page-stats" class="page form-page">
+      <form id="stat-form">
+        <h2>Neue Statistik</h2>
+        <label>Team
+          <select id="s-team">
+            <option value="">– kein Team –</option>
+          </select>
+          <input id="s-team-custom" class="custom-team-input hidden" placeholder="Team eingeben">
+        </label>
+        <label>Name
+          <select id="s-name-select" required>
+            <option value="">– Spieler wählen –</option>
+          </select>
+          <input id="s-name-custom" class="custom-team-input hidden" placeholder="Name eingeben">
+        </label>
+        <label>Farbe (Tag)
+          <div class="color-picker" id="s-color-picker"></div>
+          <input type="hidden" id="s-color" value="">
+        </label>
+        <label>Statistik-Art
+          <input id="s-type" list="stat-type-list" placeholder="z. B. Tore">
+          <datalist id="stat-type-list">
+            <option value="Tore"></option>
+            <option value="Vorlagen"></option>
+            <option value="Einsätze"></option>
+            <option value="Gelbe Karten"></option>
+            <option value="Siege"></option>
+          </datalist>
+        </label>
+        <label>Wert
+          <input id="s-value" placeholder="z. B. 27" required>
+        </label>
+        <label>Saison / Datum (optional)
+          <input id="s-season" placeholder="z. B. 2025/26">
+        </label>
+        <label>Bemerkungen (optional)
+          <textarea id="s-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit" id="stat-submit-btn">Statistik speichern</button>
+          <button type="button" id="stat-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
+        </div>
+      </form>
+
+      <div class="list-panel">
+        <div class="list-head">
+          <h2>Gespeicherte Statistiken</h2>
+          <span id="stat-count-badge" class="count-badge">0</span>
+        </div>
+        <input type="text" id="stat-search" class="mini-search-input" placeholder="In Statistiken suchen…" autocomplete="off">
+        <div id="stat-list" class="entry-list"></div>
+      </div>
+    </section>
+
+    <section id="page-penalties" class="page form-page">
+      <form id="penalty-form">
+        <h2>Neue Strafe</h2>
+        <label>Team
+          <select id="p-team">
+            <option value="">– kein Team –</option>
+          </select>
+          <input id="p-team-custom" class="custom-team-input hidden" placeholder="Team eingeben">
+        </label>
+        <label>Name
+          <select id="p-name-select" required>
+            <option value="">– Spieler wählen –</option>
+          </select>
+          <input id="p-name-custom" class="custom-team-input hidden" placeholder="Name eingeben">
+        </label>
+        <label>Farbe (Tag)
+          <div class="color-picker" id="p-color-picker"></div>
+          <input type="hidden" id="p-color" value="">
+        </label>
+        <div class="fields-row-3">
+          <label>Gelb
+            <input id="p-gelb" type="number" min="0" step="1" placeholder="0">
+          </label>
+          <label>2 Minuten
+            <input id="p-zweimin" type="number" min="0" step="1" placeholder="0">
+          </label>
+          <label>Rot
+            <input id="p-rot" type="number" min="0" step="1" placeholder="0">
+          </label>
+        </div>
+        <label>Bemerkungen (optional)
+          <textarea id="p-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit" id="penalty-submit-btn">Strafe speichern</button>
+          <button type="button" id="penalty-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
+        </div>
+      </form>
+
+      <div class="list-panel">
+        <div class="list-head">
+          <h2>Gespeicherte Strafen</h2>
+          <span id="penalty-count-badge" class="count-badge">0</span>
+        </div>
+        <input type="text" id="penalty-search" class="mini-search-input" placeholder="In Strafen suchen…" autocomplete="off">
+        <div id="penalty-list" class="entry-list"></div>
+      </div>
+    </section>
+
+    <section id="page-players" class="page form-page">
+      <form id="player-form">
+        <h2>Neuer Spieler</h2>
+        <label>Name
+          <input id="pl-name" placeholder="z. B. Müller" required>
+        </label>
+        <label>Team
+          <select id="pl-team" required>
+            <option value="" disabled selected>– Team wählen –</option>
+          </select>
+        </label>
+        <label>Nummer / Rolle
+          <div class="mode-toggle">
+            <button type="button" class="mode-btn active" id="pl-mode-number" data-mode="number">Nummer</button>
+            <button type="button" class="mode-btn" id="pl-mode-role" data-mode="role">Rolle</button>
+          </div>
+          <input id="pl-number" type="number" min="0" step="1" placeholder="0">
+          <select id="pl-role" class="hidden">
+            <option value="">– Rolle wählen –</option>
+            <option value="Trainer">Trainer</option>
+            <option value="Co-Trainer">Co-Trainer</option>
+            <option value="Physio">Physio</option>
+            <option value="Teambetreuer">Teambetreuer</option>
+            <option value="Schiri 1">Schiri 1</option>
+            <option value="Schiri 2">Schiri 2</option>
+            <option value="Zeitnehmer">Zeitnehmer</option>
+            <option value="Sekretär">Sekretär</option>
+          </select>
+        </label>
+        <label>Status
+          <select id="pl-status">
+            <option value="Fit">Fit</option>
+            <option value="Fraglich">Fraglich</option>
+            <option value="Verletzt">Verletzt</option>
+            <option value="Gesperrt">Gesperrt</option>
+          </select>
+        </label>
+        <label>Status-Notiz (optional)
+          <input id="pl-status-note" placeholder="z. B. Knieverletzung, Rückkehr voraussichtlich KW 12">
+        </label>
+        <div class="fields-row-3">
+          <label>Alter
+            <input id="pl-age" type="number" min="0" step="1" placeholder="0">
+          </label>
+          <label>Größe (cm)
+            <input id="pl-height" type="number" min="0" step="1" placeholder="178">
+          </label>
+          <label>Vertrag bis
+            <input id="pl-contract" placeholder="2028">
+          </label>
+        </div>
+        <label>Position
+          <input id="pl-position" list="position-list" placeholder="z. B. Rückraum Mitte">
+          <datalist id="position-list">
+            <option value="Torwart"></option>
+            <option value="Linksaußen"></option>
+            <option value="Rechtsaußen"></option>
+            <option value="Rückraum Links"></option>
+            <option value="Rückraum Mitte"></option>
+            <option value="Rückraum Rechts"></option>
+            <option value="Kreisläufer"></option>
+          </datalist>
+        </label>
+        <label>Nationalität
+          <input id="pl-nationality" list="nationality-list" placeholder="z. B. Deutschland">
+          <datalist id="nationality-list">
+            <option value="Deutschland"></option>
+            <option value="Dänemark"></option>
+            <option value="Niederlande"></option>
+            <option value="Belgien"></option>
+            <option value="Luxemburg"></option>
+            <option value="Frankreich"></option>
+            <option value="Schweiz"></option>
+            <option value="Österreich"></option>
+            <option value="Tschechien"></option>
+            <option value="Polen"></option>
+          </datalist>
+        </label>
+        <label>Letzter Verein
+          <input id="pl-last-club" placeholder="z. B. TuS Metzingen">
+        </label>
+        <label>Wechseldatum
+          <input id="pl-transfer-date" type="text" placeholder="TT.MM.JJJJ">
+        </label>
+        <h2>Rekorde &amp; Meilensteine</h2>
+        <label>Aktueller Stand (optional)
+          <input id="pl-milestone-current" placeholder="z. B. 498 Bundesliga-Tore">
+        </label>
+        <label>Ziel-Meilenstein (optional)
+          <input id="pl-milestone-target" placeholder="z. B. 500. Bundesliga-Tor">
+        </label>
+        <div class="form-actions">
+          <button type="submit" id="player-submit-btn">Spieler speichern</button>
+          <button type="button" id="player-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
+        </div>
+      </form>
+
+      <div class="list-panel">
+        <div class="list-head">
+          <h2>Gespeicherte Spieler</h2>
+          <span id="player-count-badge" class="count-badge">0</span>
+        </div>
+        <input type="text" id="player-search" class="mini-search-input" placeholder="In Spielern suchen…" autocomplete="off">
+        <div id="player-list" class="entry-list"></div>
+      </div>
+    </section>
+
+    <section id="page-analysis" class="page">
+      <form id="analysis-form" style="max-width:520px;">
+        <h2>Team-Analyse</h2>
+        <label>Team
+          <div class="mode-toggle">
+            <button type="button" class="mode-btn active" id="an-mode-home" data-side="home">Heimteam</button>
+            <button type="button" class="mode-btn" id="an-mode-away" data-side="away">Gastteam</button>
+          </div>
+        </label>
+        <div class="fields-row-2">
+          <label>Abwehrsystem
+            <input id="an-defense" placeholder="z. B. 6-0">
+          </label>
+          <label>Angriffssystem
+            <input id="an-offense" placeholder="z. B. 3-2-1">
+          </label>
+        </div>
+        <label>Stärken
+          <textarea id="an-strengths" class="remarks-field" placeholder="z. B. schnelles Umschaltspiel, starker Rückraum…"></textarea>
+        </label>
+        <label>Schwächen
+          <textarea id="an-weaknesses" class="remarks-field" placeholder="z. B. anfällig bei Tempogegenstößen…"></textarea>
+        </label>
+        <label>Schlüsselspieler (mind. 3 auswählen)
+          <div class="chip-multiselect" id="an-key-players-picker"></div>
+          <span id="an-key-players-count" class="chip-select-count">0 ausgewählt</span>
+        </label>
+        <label>Team-Statistiken (optional)
+          <div class="team-stat-input-row">
+            <input id="an-stat-label" placeholder="z. B. Tabellenplatz">
+            <input id="an-stat-value" placeholder="z. B. 3">
+            <button type="button" id="an-stat-add-btn" class="team-stat-add-btn">+ Hinzufügen</button>
+          </div>
+          <div id="an-stats-list" class="team-stats-list"></div>
+        </label>
+        <label>Bemerkungen (optional)
+          <textarea id="an-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
+        </label>
+        <div class="matchday-actions">
+          <button type="submit">Analyse speichern</button>
+          <span id="analysis-status" class="save-status">Gespeichert ✓</span>
+        </div>
+      </form>
+    </section>
+
+    <section id="page-form" class="page">
+      <form id="form-compare-form">
+        <div class="form-compare-grid">
+          <div class="form-compare-col">
+            <h2 id="form-home-title">Heimteam</h2>
+            <label>Letzte 5
+              <input id="form-home-last5" placeholder="z. B. S-S-U-N-S">
+            </label>
+            <label>Tore
+              <input id="form-home-goals" type="number" min="0" step="1" placeholder="0">
+            </label>
+            <label>Gegentore
+              <input id="form-home-conceded" type="number" min="0" step="1" placeholder="0">
+            </label>
+            <div class="goal-diff-display" id="form-home-diff">Tordifferenz <b>–</b></div>
+            <label>Punkte
+              <input id="form-home-points" type="number" min="0" step="1" placeholder="0">
+            </label>
+            <label>Tabellenplatz
+              <input id="form-home-position" type="number" min="1" step="1" placeholder="0">
+            </label>
+            <label>xGoals letztes Spiel
+              <input id="form-home-xgoals" type="number" min="0" step="0.1" placeholder="z. B. 27.4">
+            </label>
+            <label>Effizienz letztes Spiel
+              <input id="form-home-efficiency" placeholder="z. B. 58%">
+            </label>
+            <label>Wurfeffizienz letztes Spiel
+              <input id="form-home-shooteff" placeholder="z. B. 62%">
+            </label>
+            <label>xS letztes Spiel
+              <input id="form-home-xs" type="number" min="0" step="0.1" placeholder="z. B. 8.2">
+            </label>
+            <label>Saves letztes Spiel
+              <input id="form-home-saves" type="number" min="0" step="1" placeholder="z. B. 9">
+            </label>
+            <label>Ballverluste letztes Spiel
+              <input id="form-home-turnovers" type="number" min="0" step="1" placeholder="z. B. 12">
+            </label>
+            <label>7-Meter-Quote letztes Spiel
+              <input id="form-home-sevenm" placeholder="z. B. 80%">
+            </label>
+
+            <span class="recent-games-heading">Letzte 3 Spiele</span>
+            <div class="recent-game-block">
+              <div class="rg-title-row">
+                <span class="rg-title">Spiel 1 (letztes)</span>
+                <select id="form-home-rg1-venue" class="rg-venue-select">
+                  <option value="">Ort?</option>
+                  <option value="heim">Heim</option>
+                  <option value="auswaerts">Auswärts</option>
+                </select>
+              </div>
+              <div class="recent-game-fields">
+                <label>Gegner<input id="form-home-rg1-opp" placeholder="Gegner"></label>
+                <label>Spielstand<input id="form-home-rg1-score" placeholder="z. B. 28:25"></label>
+                <label>Topscorer<input id="form-home-rg1-top" placeholder="Name (Tore)"></label>
+              </div>
+            </div>
+            <div class="recent-game-block">
+              <div class="rg-title-row">
+                <span class="rg-title">Spiel 2</span>
+                <select id="form-home-rg2-venue" class="rg-venue-select">
+                  <option value="">Ort?</option>
+                  <option value="heim">Heim</option>
+                  <option value="auswaerts">Auswärts</option>
+                </select>
+              </div>
+              <div class="recent-game-fields">
+                <label>Gegner<input id="form-home-rg2-opp" placeholder="Gegner"></label>
+                <label>Spielstand<input id="form-home-rg2-score" placeholder="z. B. 28:25"></label>
+                <label>Topscorer<input id="form-home-rg2-top" placeholder="Name (Tore)"></label>
+              </div>
+            </div>
+            <div class="recent-game-block">
+              <div class="rg-title-row">
+                <span class="rg-title">Spiel 3</span>
+                <select id="form-home-rg3-venue" class="rg-venue-select">
+                  <option value="">Ort?</option>
+                  <option value="heim">Heim</option>
+                  <option value="auswaerts">Auswärts</option>
+                </select>
+              </div>
+              <div class="recent-game-fields">
+                <label>Gegner<input id="form-home-rg3-opp" placeholder="Gegner"></label>
+                <label>Spielstand<input id="form-home-rg3-score" placeholder="z. B. 28:25"></label>
+                <label>Topscorer<input id="form-home-rg3-top" placeholder="Name (Tore)"></label>
+              </div>
+            </div>
+          </div>
+          <div class="form-compare-col">
+            <h2 id="form-away-title">Gastteam</h2>
+            <label>Letzte 5
+              <input id="form-away-last5" placeholder="z. B. S-S-U-N-S">
+            </label>
+            <label>Tore
+              <input id="form-away-goals" type="number" min="0" step="1" placeholder="0">
+            </label>
+            <label>Gegentore
+              <input id="form-away-conceded" type="number" min="0" step="1" placeholder="0">
+            </label>
+            <div class="goal-diff-display" id="form-away-diff">Tordifferenz <b>–</b></div>
+            <label>Punkte
+              <input id="form-away-points" type="number" min="0" step="1" placeholder="0">
+            </label>
+            <label>Tabellenplatz
+              <input id="form-away-position" type="number" min="1" step="1" placeholder="0">
+            </label>
+            <label>xGoals letztes Spiel
+              <input id="form-away-xgoals" type="number" min="0" step="0.1" placeholder="z. B. 27.4">
+            </label>
+            <label>Effizienz letztes Spiel
+              <input id="form-away-efficiency" placeholder="z. B. 58%">
+            </label>
+            <label>Wurfeffizienz letztes Spiel
+              <input id="form-away-shooteff" placeholder="z. B. 62%">
+            </label>
+            <label>xS letztes Spiel
+              <input id="form-away-xs" type="number" min="0" step="0.1" placeholder="z. B. 8.2">
+            </label>
+            <label>Saves letztes Spiel
+              <input id="form-away-saves" type="number" min="0" step="1" placeholder="z. B. 9">
+            </label>
+            <label>Ballverluste letztes Spiel
+              <input id="form-away-turnovers" type="number" min="0" step="1" placeholder="z. B. 12">
+            </label>
+            <label>7-Meter-Quote letztes Spiel
+              <input id="form-away-sevenm" placeholder="z. B. 80%">
+            </label>
+
+            <span class="recent-games-heading">Letzte 3 Spiele</span>
+            <div class="recent-game-block">
+              <div class="rg-title-row">
+                <span class="rg-title">Spiel 1 (letztes)</span>
+                <select id="form-away-rg1-venue" class="rg-venue-select">
+                  <option value="">Ort?</option>
+                  <option value="heim">Heim</option>
+                  <option value="auswaerts">Auswärts</option>
+                </select>
+              </div>
+              <div class="recent-game-fields">
+                <label>Gegner<input id="form-away-rg1-opp" placeholder="Gegner"></label>
+                <label>Spielstand<input id="form-away-rg1-score" placeholder="z. B. 28:25"></label>
+                <label>Topscorer<input id="form-away-rg1-top" placeholder="Name (Tore)"></label>
+              </div>
+            </div>
+            <div class="recent-game-block">
+              <div class="rg-title-row">
+                <span class="rg-title">Spiel 2</span>
+                <select id="form-away-rg2-venue" class="rg-venue-select">
+                  <option value="">Ort?</option>
+                  <option value="heim">Heim</option>
+                  <option value="auswaerts">Auswärts</option>
+                </select>
+              </div>
+              <div class="recent-game-fields">
+                <label>Gegner<input id="form-away-rg2-opp" placeholder="Gegner"></label>
+                <label>Spielstand<input id="form-away-rg2-score" placeholder="z. B. 28:25"></label>
+                <label>Topscorer<input id="form-away-rg2-top" placeholder="Name (Tore)"></label>
+              </div>
+            </div>
+            <div class="recent-game-block">
+              <div class="rg-title-row">
+                <span class="rg-title">Spiel 3</span>
+                <select id="form-away-rg3-venue" class="rg-venue-select">
+                  <option value="">Ort?</option>
+                  <option value="heim">Heim</option>
+                  <option value="auswaerts">Auswärts</option>
+                </select>
+              </div>
+              <div class="recent-game-fields">
+                <label>Gegner<input id="form-away-rg3-opp" placeholder="Gegner"></label>
+                <label>Spielstand<input id="form-away-rg3-score" placeholder="z. B. 28:25"></label>
+                <label>Topscorer<input id="form-away-rg3-top" placeholder="Name (Tore)"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="matchday-actions">
+          <button type="submit">Form speichern</button>
+          <span id="form-status" class="save-status">Gespeichert ✓</span>
+        </div>
+      </form>
+    </section>
+
+    <section id="page-h2h" class="page form-page">
+      <form id="h2h-form">
+        <h2>Neues Duell</h2>
+        <label>Datum
+          <input id="h2h-date" type="text" placeholder="TT.MM.JJJJ">
+        </label>
+        <label>Wettbewerb (optional)
+          <input id="h2h-competition" placeholder="z. B. Bundesliga, Pokal">
+        </label>
+        <label>Heimteam
+          <select id="h2h-hometeam">
+            <option value="">– Heimteam wählen –</option>
+          </select>
+          <input id="h2h-hometeam-custom" class="custom-team-input hidden" placeholder="Team eingeben">
+        </label>
+        <label>Gastteam
+          <select id="h2h-awayteam">
+            <option value="">– Gastteam wählen –</option>
+          </select>
+          <input id="h2h-awayteam-custom" class="custom-team-input hidden" placeholder="Team eingeben">
+        </label>
+        <label>Ergebnis
+          <input id="h2h-score" placeholder="z. B. 28:25" required>
+        </label>
+        <label>Bemerkung (optional)
+          <textarea id="h2h-remarks" class="remarks-field" placeholder="Besonderheiten dieses Duells…"></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit" id="h2h-submit-btn">Duell speichern</button>
+          <button type="button" id="h2h-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
+        </div>
+      </form>
+
+      <div class="list-panel">
+        <div class="list-head">
+          <h2>Direkter Vergleich</h2>
+          <span id="h2h-count-badge" class="count-badge">0</span>
+        </div>
+        <div id="h2h-summary" class="h2h-summary"></div>
+        <div id="h2h-list" class="entry-list"></div>
+      </div>
+    </section>
+
+    <section id="page-dashboard" class="page">
+      <div class="mode-toggle dash-subtabs">
+        <button type="button" class="mode-btn active" id="dash-view-teams-btn" data-view="teams">Teams</button>
+        <button type="button" class="mode-btn" id="dash-view-analysis-btn" data-view="analysis">Analyse</button>
+        <button type="button" class="mode-btn" id="dash-view-form-btn" data-view="form">Form</button>
+        <button type="button" class="mode-btn" id="dash-view-officials-btn" data-view="officials">Offizielle</button>
+        <button type="button" class="mode-btn" id="dash-view-photos-btn" data-view="photos">Fotos</button>
+      </div>
+
+      <div id="dashboard-teams-view" class="dashboard-subview active">
+        <div class="dashboard-grid">
+          <div class="dashboard-col">
+            <h2 id="dashboard-home-title">Heimteam</h2>
+            <div id="dashboard-home-list" class="dashboard-player-list"></div>
+          </div>
+          <div class="dashboard-col">
+            <h2 id="dashboard-away-title">Gastteam</h2>
+            <div id="dashboard-away-list" class="dashboard-player-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="dashboard-officials-view" class="dashboard-subview">
+        <div class="dashboard-col">
+          <h2>Offizielle</h2>
+          <div id="dashboard-officials-list" class="dashboard-player-list"></div>
+        </div>
+      </div>
+
+      <div id="dashboard-photos-view" class="dashboard-subview">
+        <div class="dashboard-photos-grid">
+          <div class="dashboard-photo-box">
+            <h2>Tabelle</h2>
+            <div id="dashboard-photo-tabelle"></div>
+          </div>
+          <div class="dashboard-photo-box">
+            <h2>Spieltag</h2>
+            <div id="dashboard-photo-spieltag"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="dashboard-analysis-view" class="dashboard-subview">
+        <div class="analysis-grid">
+          <div class="analysis-box">
+            <h2 id="dashboard-analysis-home-title">Heimteam</h2>
+            <div id="dashboard-analysis-home"></div>
+          </div>
+          <div class="analysis-box">
+            <h2 id="dashboard-analysis-away-title">Gastteam</h2>
+            <div id="dashboard-analysis-away"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="dashboard-form-view" class="dashboard-subview">
+        <div class="form-view-grid">
+          <div class="form-view-col">
+            <h2 id="dashboard-form-home-title">Heimteam</h2>
+            <div id="dashboard-form-home"></div>
+            <div id="dashboard-form-home-games" class="recent-games-view"></div>
+          </div>
+          <div class="form-view-col">
+            <h2 id="dashboard-form-away-title">Gastteam</h2>
+            <div id="dashboard-form-away"></div>
+            <div id="dashboard-form-away-games" class="recent-games-view"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-matchday" class="page">
+      <form id="matchday-form">
+        <h2>Offizielle</h2>
+        <div class="officials-grid">
+          <label>Schiri 1
+            <input id="m-schiri1" placeholder="Name">
+          </label>
+          <label>Schiri 2
+            <input id="m-schiri2" placeholder="Name">
+          </label>
+          <label>Zeitnehmer
+            <input id="m-zeitnehmer" placeholder="Name">
+          </label>
+          <label>Sekretär
+            <input id="m-sekretaer" placeholder="Name">
+          </label>
+        </div>
+
+        <h2>Fotos</h2>
+        <div class="upload-grid">
+          <div class="upload-box">
+            <span class="upload-title">Tabelle</span>
+            <label class="upload-drop" for="m-tabelle-file">
+              <img id="preview-tabelle" class="upload-preview" style="display:none;">
+              <span id="placeholder-tabelle" class="upload-placeholder">Bild auswählen</span>
+            </label>
+            <input type="file" id="m-tabelle-file" accept="image/*" class="visually-hidden">
+            <button type="button" id="remove-tabelle" class="remove-img-btn" style="display:none;">Bild entfernen</button>
+          </div>
+          <div class="upload-box">
+            <span class="upload-title">Spieltag</span>
+            <label class="upload-drop" for="m-spieltag-file">
+              <img id="preview-spieltag" class="upload-preview" style="display:none;">
+              <span id="placeholder-spieltag" class="upload-placeholder">Bild auswählen</span>
+            </label>
+            <input type="file" id="m-spieltag-file" accept="image/*" class="visually-hidden">
+            <button type="button" id="remove-spieltag" class="remove-img-btn" style="display:none;">Bild entfernen</button>
+          </div>
+        </div>
+
+        <h2>Liveticker</h2>
+        <label>Liveticker-Link (optional)
+          <input id="m-liveticker" type="url" placeholder="https://www.alsco-hbf.de/match/…">
+          <span class="hint">Wird oben als Schnellzugriff-Button angezeigt, öffnet in neuem Tab</span>
+        </label>
+
+        <h2>Bemerkungen</h2>
+        <label>Bemerkungen (optional)
+          <textarea id="m-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
+        </label>
+
+        <div class="matchday-actions">
+          <button type="submit">Spieltag-Infos speichern</button>
+          <span id="matchday-status" class="save-status">Gespeichert ✓</span>
+        </div>
+      </form>
+    </section>
+
+    <section id="page-search" class="page">
+      <div class="search-bar">
+        <input id="search-input" placeholder="Suche nach Titel oder Text…" autocomplete="off">
+      </div>
+      <div id="chip-row" class="chip-row"></div>
+      <div id="results" class="results"></div>
+    </section>
+  </main>
+
+  <p class="footer-note">Deine Einträge werden dauerhaft in diesem Artifact gespeichert.</p>
+
+  <div id="confirm-overlay" class="confirm-overlay hidden">
+    <div class="confirm-box">
+      <p id="confirm-message"></p>
+      <div class="confirm-actions">
+        <button id="confirm-cancel" class="confirm-cancel-btn">Abbrechen</button>
+        <button id="confirm-ok" class="confirm-ok-btn">Fortfahren</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <div id="player-detail-overlay" class="confirm-overlay hidden">
+    <div class="confirm-box player-detail-box">
+      <div id="player-detail-content"></div>
+      <div class="confirm-actions">
+        <button id="player-detail-close" class="confirm-cancel-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="related-detail-overlay" class="confirm-overlay hidden">
+    <div class="confirm-box related-full-box">
+      <div id="related-detail-content"></div>
+      <div class="confirm-actions">
+        <button id="related-detail-close" class="confirm-cancel-btn">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="image-lightbox" class="lightbox-overlay hidden">
+    <img id="lightbox-img" class="lightbox-img" src="" alt="">
+  </div>
+</div>
+
+<script>
+  /* ---------- Lokaler Speicher (ersetzt window.storage für den eigenständigen Betrieb) ---------- */
+  window.storage = window.storage || (function(){
+    const NS = 'kommentatoren-kartei::';
+    return {
+      async get(key){
+        try{
+          const raw = localStorage.getItem(NS + key);
+          if(raw === null) return null;
+          return { key, value: raw, shared: false };
+        }catch(e){ return null; }
+      },
+      async set(key, value){
+        try{
+          localStorage.setItem(NS + key, value);
+          return { key, value, shared: false };
+        }catch(e){ return null; }
+      },
+      async delete(key){
+        try{
+          localStorage.removeItem(NS + key);
+          return { key, deleted:true, shared:false };
+        }catch(e){ return null; }
+      },
+      async list(prefixArg){
+        try{
+          const keys = [];
+          for(let i=0;i<localStorage.length;i++){
+            const k = localStorage.key(i);
+            if(k && k.startsWith(NS)){
+              const short = k.slice(NS.length);
+              if(!prefixArg || short.startsWith(prefixArg)) keys.push(short);
+            }
+          }
+          return { keys, prefix: prefixArg, shared:false };
+        }catch(e){ return null; }
+      }
+    };
+  })();
+
+  /* ---------- Service Worker für Offline-Nutzung ---------- */
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    });
+  }
+
+  const STORAGE_KEY = 'kartei_entries';
+  const H2H_KEY = 'kartei_h2h';
+  const STATS_KEY = 'kartei_stats';
+  const PENALTIES_KEY = 'kartei_penalties';
+  const PLAYERS_KEY = 'kartei_players';
+  const TEAMS_KEY = 'kartei_teams';
+  const MATCHDAY_KEY = 'kartei_matchday';
+  const ANALYSIS_KEY = 'kartei_analysis';
+  const FORM_KEY = 'kartei_form_vergleich';
+  const CUSTOM_TEAM_VALUE = '__custom__';
+  const OFFICIALS_TEAM = 'Offizielle';
+
+  let entries = [];
+  let stats = [];
+  let penalties = [];
+  let players = [];
+  let teams = { home: '', away: '' };
+  let matchday = { schiri1:'', schiri2:'', zeitnehmer:'', sekretaer:'', tabelleImg:null, spieltagImg:null, remarks:'', livetickerUrl:'' };
+  function emptyAnalysis(){
+    return { defense:'', offense:'', strengths:'', weaknesses:'', keyPlayers:[], teamStats:[], remarks:'' };
+  }
+  let analysis = { home: emptyAnalysis(), away: emptyAnalysis() };
+  function emptyTeamForm(){
+    return {
+      last5:'', goals:'', conceded:'', points:'', position:'', xgoals:'',
+      efficiency:'', shooteff:'', xs:'', saves:'', turnovers:'', sevenm:'',
+      recentGames: [
+        { opponent:'', score:'', topscorer:'', venue:'' },
+        { opponent:'', score:'', topscorer:'', venue:'' },
+        { opponent:'', score:'', topscorer:'', venue:'' }
+      ]
+    };
+  }
+  let teamForm = { home: emptyTeamForm(), away: emptyTeamForm() };
+  let analysisSide = 'home';
+  let anKeyPlayersSelection = [];
+  let anTeamStats = [];
+  let activeCategory = 'Alle';
+
+  let editingEntryId = null;
+  let editingStatId = null;
+  let editingPenaltyId = null;
+  let editingPlayerId = null;
+  let editingH2HId = null;
+  let h2h = [];
+
+  const TAG_COLORS = [
+    { key: 'red',    hex: '#f35561', label: 'Rot' },
+    { key: 'orange', hex: '#fdb880', label: 'Orange' },
+    { key: 'yellow', hex: '#f4d488', label: 'Gelb' },
+    { key: 'green',  hex: '#2ac6b3', label: 'Grün' },
+    { key: 'blue',   hex: '#76aeff', label: 'Blau' },
+    { key: 'purple', hex: '#b07af1', label: 'Lila' },
+    { key: 'pink',   hex: '#fb7ac7', label: 'Pink' },
+    { key: 'gray',   hex: '#a1a9b6', label: 'Grau' }
+  ];
+
+  function tagColorHex(key){
+    const found = TAG_COLORS.find(c => c.key === key);
+    return found ? found.hex : null;
+  }
+
+  function setupColorPicker(pickerId, inputId){
+    const picker = document.getElementById(pickerId);
+    const input = document.getElementById(inputId);
+    picker.innerHTML = TAG_COLORS.map(c =>
+      `<button type="button" class="color-swatch" data-color="${c.key}" style="background:${c.hex}" title="${c.label}"></button>`
+    ).join('') + `<button type="button" class="color-swatch color-swatch-none" data-color="" title="Keine Farbe">✕</button>`;
+
+    function refresh(){
+      picker.querySelectorAll('.color-swatch').forEach(btn=>{
+        btn.classList.toggle('selected', btn.dataset.color === input.value);
+      });
+    }
+    picker.querySelectorAll('.color-swatch').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        input.value = btn.dataset.color;
+        refresh();
+      });
+    });
+    refresh();
+    return { refresh };
+  }
+
+  const fColorPicker = setupColorPicker('f-color-picker', 'f-color');
+  const sColorPicker = setupColorPicker('s-color-picker', 's-color');
+  const pColorPicker = setupColorPicker('p-color-picker', 'p-color');
+
+  function resetColorField(inputId, pickerCtrl){
+    document.getElementById(inputId).value = '';
+    pickerCtrl.refresh();
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  /* ---------- Eigene Dialoge (statt confirm()/alert(), die im Artifact blockiert sein können) ---------- */
+  function showConfirm(message){
+    return new Promise(resolve=>{
+      const overlay = document.getElementById('confirm-overlay');
+      const okBtn = document.getElementById('confirm-ok');
+      const cancelBtn = document.getElementById('confirm-cancel');
+      document.getElementById('confirm-message').textContent = message;
+      overlay.classList.remove('hidden');
+
+      function cleanup(result){
+        overlay.classList.add('hidden');
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        resolve(result);
+      }
+      function onOk(){ cleanup(true); }
+      function onCancel(){ cleanup(false); }
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+    });
+  }
+
+  function showToast(message, isError){
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.toggle('toast-error', !!isError);
+    toast.classList.remove('hidden');
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(()=>{ toast.classList.add('hidden'); }, 3800);
+  }
+
+  /* ---------- Teams / Setup ---------- */
+  async function loadTeamsData(){
+    try{
+      const res = await window.storage.get(TEAMS_KEY, false);
+      teams = res && res.value ? JSON.parse(res.value) : { home:'', away:'' };
+    }catch(e){
+      teams = { home:'', away:'' };
+    }
+  }
+
+  async function persistTeams(){
+    try{ await window.storage.set(TEAMS_KEY, JSON.stringify(teams), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+
+  function showSetup(prefill){
+    if(prefill){
+      document.getElementById('setup-home').value = teams.home;
+      document.getElementById('setup-away').value = teams.away;
+    }else{
+      document.getElementById('setup-home').value = '';
+      document.getElementById('setup-away').value = '';
+    }
+    document.getElementById('setup-screen').classList.remove('hidden');
+    document.getElementById('app-shell').classList.add('hidden');
+  }
+
+  function showApp(){
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');
+    document.getElementById('team-label').textContent = `${teams.home} vs ${teams.away}`;
+    populateTeamSelects();
+    populatePlayerSelect();
+    renderTeamFormPage();
+  }
+
+  function populateTeamSelects(){
+    const optionsHtml = `
+      <option value="">– kein Team –</option>
+      <option value="${escapeHtml(teams.home)}">${escapeHtml(teams.home)} (Heim)</option>
+      <option value="${escapeHtml(teams.away)}">${escapeHtml(teams.away)} (Gast)</option>
+      <option value="${OFFICIALS_TEAM}">Offizielle</option>
+      <option value="${CUSTOM_TEAM_VALUE}">Eigene Eingabe…</option>
+    `;
+    ['f-team', 's-team', 'p-team'].forEach(id=>{
+      const sel = document.getElementById(id);
+      const current = sel.value;
+      sel.innerHTML = optionsHtml;
+      if([teams.home, teams.away, OFFICIALS_TEAM, '', CUSTOM_TEAM_VALUE].includes(current)) sel.value = current;
+    });
+
+    const plSel = document.getElementById('pl-team');
+    const plCurrent = plSel.value;
+    plSel.innerHTML = `
+      <option value="" disabled ${plCurrent ? '' : 'selected'}>– Team wählen –</option>
+      <option value="${escapeHtml(teams.home)}">${escapeHtml(teams.home)} (Heim)</option>
+      <option value="${escapeHtml(teams.away)}">${escapeHtml(teams.away)} (Gast)</option>
+      <option value="${OFFICIALS_TEAM}">Offizielle</option>
+    `;
+    if([teams.home, teams.away, OFFICIALS_TEAM].includes(plCurrent)) plSel.value = plCurrent;
+
+    document.getElementById('dashboard-home-title').textContent = teams.home || 'Heimteam';
+    document.getElementById('dashboard-away-title').textContent = teams.away || 'Gastteam';
+
+    const h2hHomeSel = document.getElementById('h2h-hometeam');
+    const h2hAwaySel = document.getElementById('h2h-awayteam');
+    if(h2hHomeSel && h2hAwaySel){
+      const h2hOptionsHtml = `
+        <option value="">– Team wählen –</option>
+        <option value="${escapeHtml(teams.home)}">${escapeHtml(teams.home)}</option>
+        <option value="${escapeHtml(teams.away)}">${escapeHtml(teams.away)}</option>
+        <option value="${CUSTOM_TEAM_VALUE}">Eigene Eingabe…</option>
+      `;
+      const homeCurrent = h2hHomeSel.value;
+      const awayCurrent = h2hAwaySel.value;
+      h2hHomeSel.innerHTML = h2hOptionsHtml;
+      h2hAwaySel.innerHTML = h2hOptionsHtml;
+      if([teams.home, teams.away, '', CUSTOM_TEAM_VALUE].includes(homeCurrent)) h2hHomeSel.value = homeCurrent;
+      if([teams.home, teams.away, '', CUSTOM_TEAM_VALUE].includes(awayCurrent)) h2hAwaySel.value = awayCurrent;
+    }
+  }
+
+  const CUSTOM_PLAYER_VALUE = '__custom_player__';
+
+  function filterPlayersByTeam(teamValue){
+    if(teamValue && (teamValue === teams.home || teamValue === teams.away || teamValue === OFFICIALS_TEAM)){
+      return players.filter(p => p.team === teamValue);
+    }
+    return players;
+  }
+
+  function comparePlayersForSelect(a, b){
+    const aStaff = !!a.role;
+    const bStaff = !!b.role;
+    if(aStaff !== bStaff) return aStaff ? 1 : -1;
+    if(!aStaff){
+      const an = parseInt(a.number, 10);
+      const bn = parseInt(b.number, 10);
+      const aVal = isNaN(an) ? Infinity : an;
+      const bVal = isNaN(bn) ? Infinity : bn;
+      if(aVal !== bVal) return aVal - bVal;
+    }
+    return a.name.localeCompare(b.name);
+  }
+
+  function teamSortOrder(team){
+    if(team === teams.home) return 0;
+    if(team === teams.away) return 1;
+    return 2;
+  }
+
+  function comparePlayersForList(a, b){
+    const to = teamSortOrder(a.team) - teamSortOrder(b.team);
+    if(to !== 0) return to;
+    return comparePlayersForSelect(a, b);
+  }
+
+  const ROLE_ABBR = { 'Trainer':'TR', 'Co-Trainer':'CO', 'Physio':'PH', 'Teambetreuer':'TB', 'Schiri 1':'S1', 'Schiri 2':'S2', 'Zeitnehmer':'ZN', 'Sekretär':'SK' };
+
+  function statusBadgeClass(status){
+    if(status === 'Verletzt') return 'status-verletzt';
+    if(status === 'Fraglich') return 'status-fraglich';
+    if(status === 'Gesperrt') return 'status-gesperrt';
+    return '';
+  }
+
+  function statusBadgeHtml(status){
+    if(!status || status === 'Fit') return '';
+    return `<span class="status-badge ${statusBadgeClass(status)}">${escapeHtml(status)}</span>`;
+  }
+
+  function playerBadgeLabel(p){
+    if(p.role) return p.role;
+    if(p.number) return '#' + p.number;
+    return '';
+  }
+
+  function playerOptionHtml(p){
+    const statusSuffix = (p.status && p.status !== 'Fit') ? ` – ${p.status}` : '';
+    return `<option value="${escapeHtml(p.name)}">${playerBadgeLabel(p) ? escapeHtml(playerBadgeLabel(p))+' ' : ''}${escapeHtml(p.name)} (${escapeHtml(p.team)})${escapeHtml(statusSuffix)}</option>`;
+  }
+
+  function populatePlayerSelect(){
+    const teamVal = document.getElementById('f-team').value;
+    const filtered = filterPlayersByTeam(teamVal).sort(comparePlayersForSelect);
+    const sel = document.getElementById('f-player');
+    const current = sel.value;
+    sel.innerHTML = `<option value="">– kein Spieler –</option>` + filtered.map(playerOptionHtml).join('');
+    if([...filtered.map(p=>p.name), ''].includes(current)) sel.value = current; else sel.value = '';
+
+    populatePlayerNameSelects();
+  }
+  document.getElementById('f-team').addEventListener('change', populatePlayerSelect);
+
+  function populatePlayerNameSelects(){
+    ['s-name-select', 'p-name-select'].forEach(id=>{
+      const sel = document.getElementById(id);
+      if(!sel) return;
+      const teamSelectId = id === 's-name-select' ? 's-team' : 'p-team';
+      const teamVal = document.getElementById(teamSelectId).value;
+      const filtered = filterPlayersByTeam(teamVal).sort(comparePlayersForSelect);
+      const current = sel.value;
+      sel.innerHTML = `<option value="">– Spieler wählen –</option>` + filtered.map(playerOptionHtml).join('')
+        + `<option value="${CUSTOM_PLAYER_VALUE}">Eigene Eingabe…</option>`;
+      const validValues = [...filtered.map(p=>p.name), '', CUSTOM_PLAYER_VALUE];
+      if(validValues.includes(current)) sel.value = current; else sel.value = '';
+    });
+  }
+  document.getElementById('s-team').addEventListener('change', populatePlayerNameSelects);
+  document.getElementById('p-team').addEventListener('change', populatePlayerNameSelects);
+
+  function setupPlayerNameCustomToggle(selectId, customId){
+    const sel = document.getElementById(selectId);
+    const custom = document.getElementById(customId);
+    sel.addEventListener('change', ()=>{
+      if(sel.value === CUSTOM_PLAYER_VALUE){
+        custom.classList.remove('hidden');
+        custom.focus();
+      }else{
+        custom.classList.add('hidden');
+        custom.value = '';
+      }
+    });
+  }
+  setupPlayerNameCustomToggle('s-name-select', 's-name-custom');
+  setupPlayerNameCustomToggle('p-name-select', 'p-name-custom');
+
+  function resolvePlayerName(selectId, customId){
+    const sel = document.getElementById(selectId);
+    if(sel.value === CUSTOM_PLAYER_VALUE){
+      return document.getElementById(customId).value.trim();
+    }
+    return sel.value;
+  }
+
+  function resetPlayerNameField(selectId, customId){
+    document.getElementById(selectId).value = '';
+    const custom = document.getElementById(customId);
+    custom.value = '';
+    custom.classList.add('hidden');
+  }
+
+  function setupTeamCustomToggle(selectId, customId){
+    const sel = document.getElementById(selectId);
+    const custom = document.getElementById(customId);
+    sel.addEventListener('change', ()=>{
+      if(sel.value === CUSTOM_TEAM_VALUE){
+        custom.classList.remove('hidden');
+        custom.focus();
+      }else{
+        custom.classList.add('hidden');
+        custom.value = '';
+      }
+    });
+  }
+  setupTeamCustomToggle('f-team', 'f-team-custom');
+  setupTeamCustomToggle('s-team', 's-team-custom');
+  setupTeamCustomToggle('p-team', 'p-team-custom');
+  setupTeamCustomToggle('h2h-hometeam', 'h2h-hometeam-custom');
+  setupTeamCustomToggle('h2h-awayteam', 'h2h-awayteam-custom');
+
+  function resolveTeam(selectId, customId){
+    const sel = document.getElementById(selectId);
+    if(sel.value === CUSTOM_TEAM_VALUE){
+      return document.getElementById(customId).value.trim();
+    }
+    return sel.value;
+  }
+
+  function resetTeamField(selectId, customId){
+    document.getElementById(selectId).value = '';
+    const custom = document.getElementById(customId);
+    custom.value = '';
+    custom.classList.add('hidden');
+  }
+
+  function setTeamFieldValue(selectId, customId, teamValue){
+    const sel = document.getElementById(selectId);
+    const custom = document.getElementById(customId);
+    if(!teamValue){
+      sel.value = '';
+      custom.value = '';
+      custom.classList.add('hidden');
+      return;
+    }
+    if(teamValue === teams.home || teamValue === teams.away || teamValue === OFFICIALS_TEAM){
+      sel.value = teamValue;
+      custom.value = '';
+      custom.classList.add('hidden');
+    }else{
+      sel.value = CUSTOM_TEAM_VALUE;
+      custom.value = teamValue;
+      custom.classList.remove('hidden');
+    }
+  }
+
+  function setPlayerNameFieldValue(selectId, customId, nameValue){
+    const sel = document.getElementById(selectId);
+    const custom = document.getElementById(customId);
+    if(!nameValue){
+      sel.value = '';
+      custom.value = '';
+      custom.classList.add('hidden');
+      return;
+    }
+    const exists = Array.from(sel.options).some(o => o.value === nameValue);
+    if(exists){
+      sel.value = nameValue;
+      custom.value = '';
+      custom.classList.add('hidden');
+    }else{
+      sel.value = CUSTOM_PLAYER_VALUE;
+      custom.value = nameValue;
+      custom.classList.remove('hidden');
+    }
+  }
+
+  function setEditUI(submitBtnId, cancelBtnId, isEditing, addLabel, updateLabel){
+    document.getElementById(submitBtnId).textContent = isEditing ? updateLabel : addLabel;
+    document.getElementById(cancelBtnId).classList.toggle('hidden', !isEditing);
+  }
+
+  document.getElementById('setup-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const home = document.getElementById('setup-home').value.trim();
+    const away = document.getElementById('setup-away').value.trim();
+    if(!home || !away) return;
+    teams = { home, away };
+    await persistTeams();
+    showApp();
+    renderChips();
+    renderResults();
+  });
+
+  document.getElementById('team-edit-btn').addEventListener('click', ()=>{
+    showSetup(true);
+  });
+
+  /* ---------- Navigation ---------- */
+  function switchToPage(page){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.page === page));
+    document.getElementById('page-input').classList.toggle('active', page==='input');
+    document.getElementById('page-stats').classList.toggle('active', page==='stats');
+    document.getElementById('page-penalties').classList.toggle('active', page==='penalties');
+    document.getElementById('page-players').classList.toggle('active', page==='players');
+    document.getElementById('page-analysis').classList.toggle('active', page==='analysis');
+    document.getElementById('page-form').classList.toggle('active', page==='form');
+    document.getElementById('page-h2h').classList.toggle('active', page==='h2h');
+    document.getElementById('page-dashboard').classList.toggle('active', page==='dashboard');
+    document.getElementById('page-matchday').classList.toggle('active', page==='matchday');
+    document.getElementById('page-search').classList.toggle('active', page==='search');
+    if(page==='search'){ renderChips(); renderResults(); }
+    if(page==='dashboard'){ renderDashboard(); }
+    if(page==='analysis'){ renderKeyPlayersPicker(); }
+  }
+
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=> switchToPage(tab.dataset.page));
+  });
+
+  function applyMode(mode){
+    document.querySelectorAll('.mode-switch-btn').forEach(b=> b.classList.toggle('active', b.dataset.mode === mode));
+    document.querySelectorAll('.tab').forEach(t=> t.classList.toggle('hidden', t.dataset.mode !== mode));
+
+    const activeTab = document.querySelector('.tab.active');
+    if(!activeTab || activeTab.dataset.mode !== mode){
+      const firstTab = document.querySelector(`.tab[data-mode="${mode}"]`);
+      if(firstTab) switchToPage(firstTab.dataset.page);
+    }
+  }
+
+  document.querySelectorAll('.mode-switch-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> applyMode(btn.dataset.mode));
+  });
+
+  applyMode('entry');
+
+  /* ---------- Facts (Eingabe) ---------- */
+  async function loadEntries(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      entries = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){ entries = []; }
+
+    try{
+      const res2 = await window.storage.get(STATS_KEY, false);
+      stats = res2 && res2.value ? JSON.parse(res2.value) : [];
+    }catch(e){ stats = []; }
+
+    try{
+      const res3 = await window.storage.get(PENALTIES_KEY, false);
+      penalties = res3 && res3.value ? JSON.parse(res3.value) : [];
+    }catch(e){ penalties = []; }
+
+    try{
+      const res4 = await window.storage.get(PLAYERS_KEY, false);
+      players = res4 && res4.value ? JSON.parse(res4.value) : [];
+    }catch(e){ players = []; }
+
+    renderInputList();
+    renderStatsList();
+    renderPenaltyList();
+    renderPlayerList();
+    populatePlayerSelect();
+    renderChips();
+    renderResults();
+  }
+
+  async function persist(){
+    try{ await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+  async function persistStats(){
+    try{ await window.storage.set(STATS_KEY, JSON.stringify(stats), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+  async function persistPenalties(){
+    try{ await window.storage.set(PENALTIES_KEY, JSON.stringify(penalties), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+  async function persistPlayers(){
+    try{ await window.storage.set(PLAYERS_KEY, JSON.stringify(players), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+
+  function deriveEntryTitle(player, category, text){
+    if(player) return player;
+    if(category) return category;
+    const trimmed = text.trim();
+    return trimmed.length > 40 ? trimmed.slice(0, 40) + '…' : trimmed;
+  }
+
+  document.getElementById('entry-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const category = document.getElementById('f-category').value.trim() || 'Sonstiges';
+    const team = resolveTeam('f-team', 'f-team-custom');
+    const color = document.getElementById('f-color').value;
+    const player = document.getElementById('f-player').value;
+    const text = document.getElementById('f-text').value.trim();
+    const remarks = document.getElementById('f-remarks').value.trim();
+    if(!text) return;
+    const title = deriveEntryTitle(player, category, text);
+
+    if(editingEntryId){
+      const en = entries.find(x => x.id === editingEntryId);
+      if(en){
+        Object.assign(en, { title, category, team, color, player, text, remarks });
+      }
+      editingEntryId = null;
+      setEditUI('entry-submit-btn', 'entry-cancel-btn', false, 'Eintrag speichern', 'Eintrag aktualisieren');
+    }else{
+      entries.unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        title, category, team, color, player, text, remarks, createdAt: Date.now()
+      });
+    }
+
+    e.target.reset();
+    resetTeamField('f-team', 'f-team-custom');
+    resetColorField('f-color', fColorPicker);
+    document.getElementById('f-player').value = '';
+    await persist();
+    renderInputList();
+    renderChips();
+    renderResults();
+  });
+
+  document.getElementById('entry-cancel-btn').addEventListener('click', ()=>{
+    editingEntryId = null;
+    document.getElementById('entry-form').reset();
+    resetTeamField('f-team', 'f-team-custom');
+    resetColorField('f-color', fColorPicker);
+    document.getElementById('f-player').value = '';
+    setEditUI('entry-submit-btn', 'entry-cancel-btn', false, 'Eintrag speichern', 'Eintrag aktualisieren');
+  });
+
+  function editEntry(id){
+    const en = entries.find(x => x.id === id);
+    if(!en) return;
+    document.getElementById('f-category').value = en.category;
+    setTeamFieldValue('f-team', 'f-team-custom', en.team);
+    populatePlayerSelect();
+    document.getElementById('f-player').value = en.player || '';
+    document.getElementById('f-color').value = en.color || '';
+    fColorPicker.refresh();
+    document.getElementById('f-text').value = en.text;
+    document.getElementById('f-remarks').value = en.remarks || '';
+    editingEntryId = id;
+    setEditUI('entry-submit-btn', 'entry-cancel-btn', true, 'Eintrag speichern', 'Eintrag aktualisieren');
+    document.getElementById('f-category').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  async function deleteEntry(id){
+    entries = entries.filter(en=>en.id !== id);
+    await persist();
+    renderInputList();
+    renderChips();
+    renderResults();
+  }
+
+  function renderInputList(){
+    const list = document.getElementById('entry-list');
+    document.getElementById('count-badge').textContent = entries.length;
+    const q = document.getElementById('entry-search').value.trim().toLowerCase();
+    const filtered = q ? entries.filter(en => {
+      const hay = [en.title, en.category, en.team, en.player, en.text, en.remarks].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    }) : entries;
+
+    if(entries.length === 0){
+      list.innerHTML = '<div class="empty">Noch keine Einträge — leg oben deinen ersten an.</div>';
+      return;
+    }
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty">Keine Treffer für diese Suche.</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(en => `
+      <div class="card"${en.color ? ` style="--tag-color:${tagColorHex(en.color)}"` : ''}>
+        <div class="card-top">
+          <span class="card-title">${escapeHtml(en.title)}</span>
+          <span class="card-actions">
+            <button class="edit-btn" onclick="editEntry('${en.id}')" title="Bearbeiten">✎</button>
+            <button class="del-btn" onclick="deleteEntry('${en.id}')" title="Löschen">✕</button>
+          </span>
+        </div>
+        <span class="card-cat">${escapeHtml(en.category)}</span>
+        ${en.team ? `<span class="team-label">${escapeHtml(en.team)}</span>` : ''}
+        ${en.player ? `<span class="stat-meta"> · ${escapeHtml(en.player)}</span>` : ''}
+        <div class="card-text">${escapeHtml(en.text)}</div>
+        ${en.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(en.remarks)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  /* ---------- Stats ---------- */
+  document.getElementById('stat-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = resolvePlayerName('s-name-select', 's-name-custom');
+    const team = resolveTeam('s-team', 's-team-custom');
+    const color = document.getElementById('s-color').value;
+    const statType = document.getElementById('s-type').value.trim() || 'Wert';
+    const value = document.getElementById('s-value').value.trim();
+    const season = document.getElementById('s-season').value.trim();
+    const remarks = document.getElementById('s-remarks').value.trim();
+    if(!name || !value) return;
+
+    if(editingStatId){
+      const s = stats.find(x => x.id === editingStatId);
+      if(s){
+        Object.assign(s, { name, team, color, statType, value, season, remarks });
+      }
+      editingStatId = null;
+      setEditUI('stat-submit-btn', 'stat-cancel-btn', false, 'Statistik speichern', 'Statistik aktualisieren');
+    }else{
+      stats.unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        name, team, color, statType, value, season, remarks, createdAt: Date.now()
+      });
+    }
+
+    e.target.reset();
+    resetTeamField('s-team', 's-team-custom');
+    resetColorField('s-color', sColorPicker);
+    resetPlayerNameField('s-name-select', 's-name-custom');
+    await persistStats();
+    renderStatsList();
+    renderChips();
+    renderResults();
+  });
+
+  document.getElementById('stat-cancel-btn').addEventListener('click', ()=>{
+    editingStatId = null;
+    document.getElementById('stat-form').reset();
+    resetTeamField('s-team', 's-team-custom');
+    resetColorField('s-color', sColorPicker);
+    resetPlayerNameField('s-name-select', 's-name-custom');
+    setEditUI('stat-submit-btn', 'stat-cancel-btn', false, 'Statistik speichern', 'Statistik aktualisieren');
+  });
+
+  function editStat(id){
+    const s = stats.find(x => x.id === id);
+    if(!s) return;
+    setTeamFieldValue('s-team', 's-team-custom', s.team);
+    populatePlayerNameSelects();
+    setPlayerNameFieldValue('s-name-select', 's-name-custom', s.name);
+    document.getElementById('s-color').value = s.color || '';
+    sColorPicker.refresh();
+    document.getElementById('s-type').value = s.statType;
+    document.getElementById('s-value').value = s.value;
+    document.getElementById('s-season').value = s.season || '';
+    document.getElementById('s-remarks').value = s.remarks || '';
+    editingStatId = id;
+    setEditUI('stat-submit-btn', 'stat-cancel-btn', true, 'Statistik speichern', 'Statistik aktualisieren');
+    document.getElementById('s-name-select').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  async function deleteStat(id){
+    stats = stats.filter(s=>s.id !== id);
+    await persistStats();
+    renderStatsList();
+    renderChips();
+    renderResults();
+  }
+
+  function renderStatsList(){
+    const list = document.getElementById('stat-list');
+    document.getElementById('stat-count-badge').textContent = stats.length;
+    const q = document.getElementById('stat-search').value.trim().toLowerCase();
+    const filtered = q ? stats.filter(s => {
+      const hay = [s.name, s.team, s.statType, s.value, s.season, s.remarks].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    }) : stats;
+
+    if(stats.length === 0){
+      list.innerHTML = '<div class="empty">Noch keine Statistiken — leg oben deine erste an.</div>';
+      return;
+    }
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty">Keine Treffer für diese Suche.</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(s => `
+      <div class="card"${s.color ? ` style="--tag-color:${tagColorHex(s.color)}"` : ''}>
+        <div class="card-top">
+          <span class="card-title">${escapeHtml(s.name)}</span>
+          <span class="card-actions">
+            <button class="edit-btn" onclick="editStat('${s.id}')" title="Bearbeiten">✎</button>
+            <button class="del-btn" onclick="deleteStat('${s.id}')" title="Löschen">✕</button>
+          </span>
+        </div>
+        ${s.team ? `<span class="team-label">${escapeHtml(s.team)}</span>` : ''}
+        <div class="stat-row">
+          <span class="stat-type">${escapeHtml(s.statType)}</span>
+          <span class="stat-value">${escapeHtml(s.value)}</span>
+        </div>
+        ${s.season ? `<span class="stat-meta">${escapeHtml(s.season)}</span>` : ''}
+        ${s.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(s.remarks)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  /* ---------- Penalties (Strafen) ---------- */
+  document.getElementById('penalty-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = resolvePlayerName('p-name-select', 'p-name-custom');
+    const team = resolveTeam('p-team', 'p-team-custom');
+    const color = document.getElementById('p-color').value;
+    const gelb = parseInt(document.getElementById('p-gelb').value, 10) || 0;
+    const zweimin = parseInt(document.getElementById('p-zweimin').value, 10) || 0;
+    const rot = parseInt(document.getElementById('p-rot').value, 10) || 0;
+    const remarks = document.getElementById('p-remarks').value.trim();
+    if(!name) return;
+
+    if(editingPenaltyId){
+      const p = penalties.find(x => x.id === editingPenaltyId);
+      if(p){
+        Object.assign(p, { name, team, color, gelb, zweimin, rot, remarks });
+      }
+      editingPenaltyId = null;
+      setEditUI('penalty-submit-btn', 'penalty-cancel-btn', false, 'Strafe speichern', 'Strafe aktualisieren');
+    }else{
+      penalties.unshift({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        name, team, color, gelb, zweimin, rot, remarks, createdAt: Date.now()
+      });
+    }
+
+    e.target.reset();
+    resetTeamField('p-team', 'p-team-custom');
+    resetColorField('p-color', pColorPicker);
+    resetPlayerNameField('p-name-select', 'p-name-custom');
+    await persistPenalties();
+    renderPenaltyList();
+    renderChips();
+    renderResults();
+  });
+
+  document.getElementById('penalty-cancel-btn').addEventListener('click', ()=>{
+    editingPenaltyId = null;
+    document.getElementById('penalty-form').reset();
+    resetTeamField('p-team', 'p-team-custom');
+    resetColorField('p-color', pColorPicker);
+    resetPlayerNameField('p-name-select', 'p-name-custom');
+    setEditUI('penalty-submit-btn', 'penalty-cancel-btn', false, 'Strafe speichern', 'Strafe aktualisieren');
+  });
+
+  function editPenalty(id){
+    const p = penalties.find(x => x.id === id);
+    if(!p) return;
+    setTeamFieldValue('p-team', 'p-team-custom', p.team);
+    populatePlayerNameSelects();
+    setPlayerNameFieldValue('p-name-select', 'p-name-custom', p.name);
+    document.getElementById('p-color').value = p.color || '';
+    pColorPicker.refresh();
+    document.getElementById('p-gelb').value = p.gelb || 0;
+    document.getElementById('p-zweimin').value = p.zweimin || 0;
+    document.getElementById('p-rot').value = p.rot || 0;
+    document.getElementById('p-remarks').value = p.remarks || '';
+    editingPenaltyId = id;
+    setEditUI('penalty-submit-btn', 'penalty-cancel-btn', true, 'Strafe speichern', 'Strafe aktualisieren');
+    document.getElementById('p-name-select').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  async function deletePenalty(id){
+    penalties = penalties.filter(p=>p.id !== id);
+    await persistPenalties();
+    renderPenaltyList();
+    renderChips();
+    renderResults();
+  }
+
+  function renderPenaltyList(){
+    const list = document.getElementById('penalty-list');
+    document.getElementById('penalty-count-badge').textContent = penalties.length;
+    const q = document.getElementById('penalty-search').value.trim().toLowerCase();
+    const filtered = q ? penalties.filter(p => {
+      const hay = [p.name, p.team, p.remarks, String(p.gelb), String(p.zweimin), String(p.rot)].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    }) : penalties;
+
+    if(penalties.length === 0){
+      list.innerHTML = '<div class="empty">Noch keine Strafen — leg oben die erste an.</div>';
+      return;
+    }
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty">Keine Treffer für diese Suche.</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(p => `
+      <div class="card"${p.color ? ` style="--tag-color:${tagColorHex(p.color)}"` : ''}>
+        <div class="card-top">
+          <span class="card-title">${escapeHtml(p.name)}</span>
+          <span class="card-actions">
+            <button class="edit-btn" onclick="editPenalty('${p.id}')" title="Bearbeiten">✎</button>
+            <button class="del-btn" onclick="deletePenalty('${p.id}')" title="Löschen">✕</button>
+          </span>
+        </div>
+        ${p.team ? `<span class="team-label">${escapeHtml(p.team)}</span>` : ''}
+        <div class="penalty-grid">
+          <div class="penalty-chip"><span class="p-label">Gelb</span><span class="p-value">${p.gelb}</span></div>
+          <div class="penalty-chip"><span class="p-label">2 Min</span><span class="p-value">${p.zweimin}</span></div>
+          <div class="penalty-chip"><span class="p-label">Rot</span><span class="p-value">${p.rot}</span></div>
+        </div>
+        ${p.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(p.remarks)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  /* ---------- Players (Spieler) ---------- */
+  let plMode = 'number';
+  document.getElementById('pl-mode-number').addEventListener('click', ()=>{
+    plMode = 'number';
+    document.getElementById('pl-mode-number').classList.add('active');
+    document.getElementById('pl-mode-role').classList.remove('active');
+    document.getElementById('pl-number').classList.remove('hidden');
+    document.getElementById('pl-role').classList.add('hidden');
+    document.getElementById('pl-role').value = '';
+  });
+  document.getElementById('pl-mode-role').addEventListener('click', ()=>{
+    plMode = 'role';
+    document.getElementById('pl-mode-role').classList.add('active');
+    document.getElementById('pl-mode-number').classList.remove('active');
+    document.getElementById('pl-role').classList.remove('hidden');
+    document.getElementById('pl-number').classList.add('hidden');
+    document.getElementById('pl-number').value = '';
+  });
+
+  document.getElementById('player-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('pl-name').value.trim();
+    const team = document.getElementById('pl-team').value;
+    const number = plMode === 'number' ? document.getElementById('pl-number').value.trim() : '';
+    const role = plMode === 'role' ? document.getElementById('pl-role').value : '';
+    const age = document.getElementById('pl-age').value.trim();
+    const height = document.getElementById('pl-height').value.trim();
+    const contract = document.getElementById('pl-contract').value.trim();
+    const position = document.getElementById('pl-position').value.trim();
+    const nationality = document.getElementById('pl-nationality').value.trim();
+    const lastClub = document.getElementById('pl-last-club').value.trim();
+    const transferDate = document.getElementById('pl-transfer-date').value;
+    const status = document.getElementById('pl-status').value || 'Fit';
+    const statusNote = document.getElementById('pl-status-note').value.trim();
+    const milestoneCurrent = document.getElementById('pl-milestone-current').value.trim();
+    const milestoneTarget = document.getElementById('pl-milestone-target').value.trim();
+    if(!name || !team) return;
+    if(plMode === 'role' && !role) return;
+
+    if(editingPlayerId){
+      const p = players.find(x => x.id === editingPlayerId);
+      if(p){
+        Object.assign(p, { name, team, number, role, age, height, contract, position, nationality, lastClub, transferDate, status, statusNote, milestoneCurrent, milestoneTarget });
+      }
+      editingPlayerId = null;
+      setEditUI('player-submit-btn', 'player-cancel-btn', false, 'Spieler speichern', 'Spieler aktualisieren');
+    }else{
+      players.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        name, team, number, role, age, height, contract, position, nationality, lastClub, transferDate, status, statusNote, milestoneCurrent, milestoneTarget, createdAt: Date.now()
+      });
+    }
+
+    e.target.reset();
+    document.getElementById('pl-team').value = '';
+    document.getElementById('pl-mode-number').click();
+    await persistPlayers();
+    renderPlayerList();
+    populatePlayerSelect();
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  });
+
+  document.getElementById('player-cancel-btn').addEventListener('click', ()=>{
+    editingPlayerId = null;
+    document.getElementById('player-form').reset();
+    document.getElementById('pl-team').value = '';
+    document.getElementById('pl-mode-number').click();
+    setEditUI('player-submit-btn', 'player-cancel-btn', false, 'Spieler speichern', 'Spieler aktualisieren');
+  });
+
+  function editPlayer(id){
+    const p = players.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('pl-name').value = p.name;
+    document.getElementById('pl-team').value = p.team;
+    if(p.role){
+      document.getElementById('pl-mode-role').click();
+      document.getElementById('pl-role').value = p.role;
+    }else{
+      document.getElementById('pl-mode-number').click();
+      document.getElementById('pl-number').value = p.number || '';
+    }
+    document.getElementById('pl-age').value = p.age || '';
+    document.getElementById('pl-height').value = p.height || '';
+    document.getElementById('pl-contract').value = p.contract || '';
+    document.getElementById('pl-position').value = p.position || '';
+    document.getElementById('pl-nationality').value = p.nationality || '';
+    document.getElementById('pl-last-club').value = p.lastClub || '';
+    document.getElementById('pl-transfer-date').value = p.transferDate || '';
+    document.getElementById('pl-status').value = p.status || 'Fit';
+    document.getElementById('pl-status-note').value = p.statusNote || '';
+    document.getElementById('pl-milestone-current').value = p.milestoneCurrent || '';
+    document.getElementById('pl-milestone-target').value = p.milestoneTarget || '';
+    editingPlayerId = id;
+    setEditUI('player-submit-btn', 'player-cancel-btn', true, 'Spieler speichern', 'Spieler aktualisieren');
+    document.getElementById('pl-name').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  async function deletePlayer(id){
+    players = players.filter(p => p.id !== id);
+    await persistPlayers();
+    renderPlayerList();
+    populatePlayerSelect();
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  }
+
+  function renderPlayerList(){
+    const list = document.getElementById('player-list');
+    document.getElementById('player-count-badge').textContent = players.length;
+    const q = document.getElementById('player-search').value.trim().toLowerCase();
+    const sorted = [...players].sort(comparePlayersForList);
+    const filtered = q ? sorted.filter(p => {
+      const hay = [p.name, p.team, p.position, p.role, p.number, p.contract, p.age, p.height, p.nationality, p.lastClub, p.status, p.statusNote, p.milestoneCurrent, p.milestoneTarget].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    }) : sorted;
+
+    if(players.length === 0){
+      list.innerHTML = '<div class="empty">Noch keine Spieler — leg oben den ersten an.</div>';
+      return;
+    }
+    if(filtered.length === 0){
+      list.innerHTML = '<div class="empty">Keine Treffer für diese Suche.</div>';
+      return;
+    }
+    list.innerHTML = filtered.map(p => `
+      <div class="card">
+        <div class="card-top">
+          <span class="card-title">${playerBadgeLabel(p) ? escapeHtml(playerBadgeLabel(p))+' ' : ''}${escapeHtml(p.name)}</span>
+          <span class="card-actions">
+            <button class="edit-btn" onclick="editPlayer('${p.id}')" title="Bearbeiten">✎</button>
+            <button class="del-btn" onclick="deletePlayer('${p.id}')" title="Löschen">✕</button>
+          </span>
+        </div>
+        <span class="team-label">${escapeHtml(p.team)}</span>${p.position ? ` <span class="stat-meta">· ${escapeHtml(p.position)}</span>` : ''}
+        ${statusBadgeHtml(p.status)}
+        ${p.milestoneTarget ? `<div class="remarks-line">🏆 ${p.milestoneCurrent ? escapeHtml(p.milestoneCurrent) + ' → ' : ''}${escapeHtml(p.milestoneTarget)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  /* ---------- Dashboard ---------- */
+  function renderDashboard(){
+    const homeList = document.getElementById('dashboard-home-list');
+    const awayList = document.getElementById('dashboard-away-list');
+    const officialsList = document.getElementById('dashboard-officials-list');
+    const homePlayers = players.filter(p => p.team === teams.home).sort((a,b)=> (parseInt(a.number)||999) - (parseInt(b.number)||999));
+    const awayPlayers = players.filter(p => p.team === teams.away).sort((a,b)=> (parseInt(a.number)||999) - (parseInt(b.number)||999));
+    const officialsPlayers = players.filter(p => p.team === OFFICIALS_TEAM).sort((a,b)=> a.name.localeCompare(b.name));
+
+    homeList.innerHTML = homePlayers.length ? homePlayers.map(playerCardHtml).join('') : '<div class="empty">Noch keine Spieler für dieses Team.</div>';
+    awayList.innerHTML = awayPlayers.length ? awayPlayers.map(playerCardHtml).join('') : '<div class="empty">Noch keine Spieler für dieses Team.</div>';
+    officialsList.innerHTML = officialsPlayers.length ? officialsPlayers.map(playerCardHtml).join('') : '<div class="empty">Noch keine Offiziellen erfasst.</div>';
+
+    document.querySelectorAll('.player-card').forEach(card=>{
+      card.addEventListener('click', ()=> showPlayerDetail(card.dataset.id));
+    });
+
+    renderDashboardPhotos();
+    renderDashboardAnalysis();
+  }
+
+  function renderDashboardPhotos(){
+    const tabelleBox = document.getElementById('dashboard-photo-tabelle');
+    const spieltagBox = document.getElementById('dashboard-photo-spieltag');
+    tabelleBox.innerHTML = matchday.tabelleImg
+      ? `<img src="${matchday.tabelleImg}" class="dashboard-photo-img" alt="Tabelle">`
+      : '<div class="empty">Noch kein Bild hochgeladen — im Reiter „Spieltag" ergänzen.</div>';
+    spieltagBox.innerHTML = matchday.spieltagImg
+      ? `<img src="${matchday.spieltagImg}" class="dashboard-photo-img" alt="Spieltag">`
+      : '<div class="empty">Noch kein Bild hochgeladen — im Reiter „Spieltag" ergänzen.</div>';
+
+    const tabelleImgEl = tabelleBox.querySelector('img');
+    if(tabelleImgEl) tabelleImgEl.addEventListener('click', ()=> openLightbox(matchday.tabelleImg));
+    const spieltagImgEl = spieltagBox.querySelector('img');
+    if(spieltagImgEl) spieltagImgEl.addEventListener('click', ()=> openLightbox(matchday.spieltagImg));
+  }
+
+  function openLightbox(src){
+    if(!src) return;
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('image-lightbox').classList.remove('hidden');
+  }
+  document.getElementById('image-lightbox').addEventListener('click', ()=>{
+    document.getElementById('image-lightbox').classList.add('hidden');
+    document.getElementById('lightbox-img').src = '';
+  });
+
+  const DASH_VIEWS = ['teams', 'officials', 'photos', 'analysis', 'form'];
+  DASH_VIEWS.forEach(view=>{
+    document.getElementById(`dash-view-${view}-btn`).addEventListener('click', ()=>{
+      DASH_VIEWS.forEach(v=>{
+        document.getElementById(`dash-view-${v}-btn`).classList.toggle('active', v === view);
+        document.getElementById(`dashboard-${v}-view`).classList.toggle('active', v === view);
+      });
+    });
+  });
+
+  function playerCardHtml(p){
+    const badge = p.role ? (ROLE_ABBR[p.role] || p.role.slice(0,2).toUpperCase()) : (p.number ? escapeHtml(p.number) : '–');
+    const statusSuffix = (p.status && p.status !== 'Fit') ? `<span class="p-status ${statusBadgeClass(p.status)}">${escapeHtml(p.status)}</span>` : '';
+    return `
+      <button type="button" class="player-card" data-id="${p.id}">
+        <span class="p-number">${badge}</span>
+        <span class="p-info">
+          <span class="p-name">${escapeHtml(p.name)}${p.milestoneTarget ? ' 🏆' : ''}</span>
+          <span class="p-position">${escapeHtml(p.role || p.position || '–')}${statusSuffix}</span>
+        </span>
+      </button>
+    `;
+  }
+
+  function showPlayerDetail(id){
+    const p = players.find(pl => pl.id === id);
+    if(!p) return;
+
+    const related = [
+      ...entries.filter(en => en.player === p.name).map(en => ({ kind:'entry', id:en.id, cat: en.category, body: en.text, color: en.color })),
+      ...stats.filter(s => s.name === p.name).map(s => ({ kind:'stat', id:s.id, cat: 'Statistik', body: `${s.statType}: ${s.value}${s.season ? ' ('+s.season+')' : ''}`, color: s.color })),
+      ...penalties.filter(pe => pe.name === p.name).map(pe => ({ kind:'penalty', id:pe.id, cat: 'Strafe', body: `Gelb: ${pe.gelb} · 2 Min: ${pe.zweimin} · Rot: ${pe.rot}`, color: pe.color }))
+    ];
+
+    const badge = p.role ? (ROLE_ABBR[p.role] || p.role.slice(0,2).toUpperCase()) : (p.number ? escapeHtml(p.number) : '–');
+    const html = `
+      <div class="player-detail-header">
+        <span class="p-number">${badge}</span>
+        <div>
+          <h3>${escapeHtml(p.name)}</h3>
+          <div class="p-team-label">${escapeHtml(p.team)}</div>
+        </div>
+      </div>
+      <div class="player-detail-grid">
+        <div class="player-detail-stat"><span class="pd-label">${p.role ? 'Rolle' : 'Nummer'}</span><span class="pd-value">${p.role ? escapeHtml(p.role) : (p.number ? escapeHtml(p.number) : '–')}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Alter</span><span class="pd-value">${p.age ? escapeHtml(p.age) : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Größe</span><span class="pd-value">${p.height ? escapeHtml(p.height) + ' cm' : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Vertrag bis</span><span class="pd-value">${p.contract ? escapeHtml(p.contract) : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Position</span><span class="pd-value">${p.position ? escapeHtml(p.position) : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Nationalität</span><span class="pd-value">${p.nationality ? escapeHtml(p.nationality) : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Letzter Verein</span><span class="pd-value">${p.lastClub ? escapeHtml(p.lastClub) : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Wechseldatum</span><span class="pd-value">${p.transferDate ? escapeHtml(p.transferDate) : '–'}</span></div>
+        <div class="player-detail-stat"><span class="pd-label">Status</span><span class="pd-value">${(p.status && p.status !== 'Fit') ? statusBadgeHtml(p.status) : 'Fit'}</span></div>
+      </div>
+      ${p.statusNote ? `<div class="remarks-line">Status-Notiz: ${escapeHtml(p.statusNote)}</div>` : ''}
+      ${(p.milestoneCurrent || p.milestoneTarget) ? `
+        <div class="milestone-block">
+          <span class="milestone-label">🏆 Rekord-Tracking</span>
+          ${p.milestoneCurrent ? `<div class="milestone-line"><span class="ml-label">Aktueller Stand</span><span class="ml-value">${escapeHtml(p.milestoneCurrent)}</span></div>` : ''}
+          ${p.milestoneTarget ? `<div class="milestone-line"><span class="ml-label">Ziel</span><span class="ml-value">${escapeHtml(p.milestoneTarget)}</span></div>` : ''}
+        </div>
+      ` : ''}
+      ${related.length ? `
+        <div class="player-detail-related">
+          ${related.map(r => `<button type="button" class="related-item"${r.color ? ` style="--tag-color:${tagColorHex(r.color)}"` : ''} onclick="showRelatedDetail('${r.kind}','${r.id}')"><span class="related-cat">${escapeHtml(r.cat)}</span><div class="related-body">${escapeHtml(r.body)}</div></button>`).join('')}
+        </div>
+      ` : `<div class="player-detail-empty">Noch keine Einträge, Statistiken oder Strafen für diesen Spieler.</div>`}
+    `;
+    document.getElementById('player-detail-content').innerHTML = html;
+    document.getElementById('player-detail-overlay').classList.remove('hidden');
+  }
+
+  document.getElementById('player-detail-close').addEventListener('click', ()=>{
+    document.getElementById('player-detail-overlay').classList.add('hidden');
+  });
+
+  function showRelatedDetail(kind, id){
+    let html = '';
+    let color = null;
+
+    if(kind === 'entry'){
+      const en = entries.find(x => x.id === id);
+      if(!en) return;
+      color = en.color;
+      html = `
+        <h3 class="related-full-title">${escapeHtml(en.title)}</h3>
+        <span class="rcard-cat">${escapeHtml(en.category)}</span>
+        ${en.team ? `<div class="team-label" style="margin-top:6px;">${escapeHtml(en.team)}</div>` : ''}
+        <div class="rcard-text" style="margin-top:10px;">${escapeHtml(en.text)}</div>
+        ${en.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(en.remarks)}</div>` : ''}
+      `;
+    }else if(kind === 'stat'){
+      const s = stats.find(x => x.id === id);
+      if(!s) return;
+      color = s.color;
+      html = `
+        <h3 class="related-full-title">${escapeHtml(s.name)}</h3>
+        ${s.team ? `<div class="team-label">${escapeHtml(s.team)}</div>` : ''}
+        ${s.season ? `<span class="stat-meta">${escapeHtml(s.season)}</span>` : ''}
+        <div class="stat-row" style="margin-top:10px;">
+          <span class="stat-type">${escapeHtml(s.statType)}</span>
+          <span class="stat-value">${escapeHtml(s.value)}</span>
+        </div>
+        ${s.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(s.remarks)}</div>` : ''}
+      `;
+    }else if(kind === 'penalty'){
+      const pe = penalties.find(x => x.id === id);
+      if(!pe) return;
+      color = pe.color;
+      html = `
+        <h3 class="related-full-title">${escapeHtml(pe.name)}</h3>
+        ${pe.team ? `<div class="team-label">${escapeHtml(pe.team)}</div>` : ''}
+        <div class="penalty-grid" style="margin-top:10px;">
+          <div class="penalty-chip"><span class="p-label">Gelb</span><span class="p-value">${pe.gelb}</span></div>
+          <div class="penalty-chip"><span class="p-label">2 Min</span><span class="p-value">${pe.zweimin}</span></div>
+          <div class="penalty-chip"><span class="p-label">Rot</span><span class="p-value">${pe.rot}</span></div>
+        </div>
+        ${pe.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(pe.remarks)}</div>` : ''}
+      `;
+    }
+
+    document.getElementById('related-detail-content').innerHTML = html;
+    const box = document.querySelector('#related-detail-overlay .related-full-box');
+    if(color){
+      box.style.setProperty('--tag-color', tagColorHex(color));
+    }else{
+      box.style.removeProperty('--tag-color');
+    }
+    document.getElementById('related-detail-overlay').classList.remove('hidden');
+  }
+
+  document.getElementById('related-detail-close').addEventListener('click', ()=>{
+    document.getElementById('related-detail-overlay').classList.add('hidden');
+  });
+
+  /* ---------- Matchday ---------- */
+  async function loadMatchdayData(){
+    try{
+      const res = await window.storage.get(MATCHDAY_KEY, false);
+      matchday = res && res.value ? JSON.parse(res.value) : { schiri1:'', schiri2:'', zeitnehmer:'', sekretaer:'', tabelleImg:null, spieltagImg:null, remarks:'', livetickerUrl:'' };
+    }catch(e){
+      matchday = { schiri1:'', schiri2:'', zeitnehmer:'', sekretaer:'', tabelleImg:null, spieltagImg:null, remarks:'', livetickerUrl:'' };
+    }
+    renderMatchdayForm();
+  }
+
+  /* ---------- Team-Analyse ---------- */
+  async function loadAnalysisData(){
+    try{
+      const res = await window.storage.get(ANALYSIS_KEY, false);
+      analysis = res && res.value ? JSON.parse(res.value) : { home: emptyAnalysis(), away: emptyAnalysis() };
+    }catch(e){
+      analysis = { home: emptyAnalysis(), away: emptyAnalysis() };
+    }
+    renderAnalysisForm();
+  }
+
+  async function persistAnalysis(){
+    try{ await window.storage.set(ANALYSIS_KEY, JSON.stringify(analysis), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+
+  /* ---------- Formvergleich ---------- */
+  async function loadTeamFormData(){
+    try{
+      const res = await window.storage.get(FORM_KEY, false);
+      teamForm = res && res.value ? JSON.parse(res.value) : { home: emptyTeamForm(), away: emptyTeamForm() };
+    }catch(e){
+      teamForm = { home: emptyTeamForm(), away: emptyTeamForm() };
+    }
+    renderTeamFormPage();
+  }
+
+  async function persistTeamForm(){
+    try{ await window.storage.set(FORM_KEY, JSON.stringify(teamForm), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+
+  function computeGoalDiff(goals, conceded){
+    const g = parseFloat(String(goals).trim().replace(',', '.'));
+    const c = parseFloat(String(conceded).trim().replace(',', '.'));
+    if(isNaN(g) || isNaN(c)) return null;
+    return g - c;
+  }
+
+  function formatGoalDiff(diff){
+    if(diff === null) return '–';
+    return diff > 0 ? `+${diff}` : `${diff}`;
+  }
+
+  function updateGoalDiffDisplay(side){
+    const el = document.getElementById(`form-${side}-diff`);
+    if(!el) return;
+    const goals = document.getElementById(`form-${side}-goals`).value;
+    const conceded = document.getElementById(`form-${side}-conceded`).value;
+    const diff = computeGoalDiff(goals, conceded);
+    el.querySelector('b').textContent = formatGoalDiff(diff);
+    el.classList.remove('positive', 'negative');
+    if(diff !== null && diff > 0) el.classList.add('positive');
+    else if(diff !== null && diff < 0) el.classList.add('negative');
+  }
+
+  function renderTeamFormPage(){
+    document.getElementById('form-home-title').textContent = teams.home || 'Heimteam';
+    document.getElementById('form-away-title').textContent = teams.away || 'Gastteam';
+
+    const h = teamForm.home || emptyTeamForm();
+    const a = teamForm.away || emptyTeamForm();
+    document.getElementById('form-home-last5').value = h.last5 || '';
+    document.getElementById('form-home-goals').value = h.goals || '';
+    document.getElementById('form-home-conceded').value = h.conceded || '';
+    document.getElementById('form-home-points').value = h.points || '';
+    document.getElementById('form-home-position').value = h.position || '';
+    document.getElementById('form-home-xgoals').value = h.xgoals || '';
+    document.getElementById('form-home-efficiency').value = h.efficiency || '';
+    document.getElementById('form-home-shooteff').value = h.shooteff || '';
+    document.getElementById('form-home-xs').value = h.xs || '';
+    document.getElementById('form-home-saves').value = h.saves || '';
+    document.getElementById('form-home-turnovers').value = h.turnovers || '';
+    document.getElementById('form-home-sevenm').value = h.sevenm || '';
+    document.getElementById('form-away-last5').value = a.last5 || '';
+    document.getElementById('form-away-goals').value = a.goals || '';
+    document.getElementById('form-away-conceded').value = a.conceded || '';
+    document.getElementById('form-away-points').value = a.points || '';
+    document.getElementById('form-away-position').value = a.position || '';
+    document.getElementById('form-away-xgoals').value = a.xgoals || '';
+    document.getElementById('form-away-efficiency').value = a.efficiency || '';
+    document.getElementById('form-away-shooteff').value = a.shooteff || '';
+    document.getElementById('form-away-xs').value = a.xs || '';
+    document.getElementById('form-away-saves').value = a.saves || '';
+    document.getElementById('form-away-turnovers').value = a.turnovers || '';
+    document.getElementById('form-away-sevenm').value = a.sevenm || '';
+
+    updateGoalDiffDisplay('home');
+    updateGoalDiffDisplay('away');
+
+    ['home','away'].forEach(side=>{
+      const games = (teamForm[side] && teamForm[side].recentGames) || emptyTeamForm().recentGames;
+      games.forEach((g, i)=>{
+        const n = i + 1;
+        document.getElementById(`form-${side}-rg${n}-opp`).value = g.opponent || '';
+        document.getElementById(`form-${side}-rg${n}-score`).value = g.score || '';
+        document.getElementById(`form-${side}-rg${n}-top`).value = g.topscorer || '';
+        document.getElementById(`form-${side}-rg${n}-venue`).value = g.venue || '';
+      });
+    });
+
+    renderTeamFormDashboard();
+  }
+
+  function teamFormFieldHtml(label, value){
+    return `<div class="analysis-block"><span class="analysis-label">${escapeHtml(label)}</span><div class="analysis-value${value ? '' : ' empty-value'}">${value ? escapeHtml(value) : '–'}</div></div>`;
+  }
+
+  function goalDiffFieldHtml(label, goals, conceded){
+    const diff = computeGoalDiff(goals, conceded);
+    const text = diff === null ? '' : formatGoalDiff(diff);
+    const diffCls = diff === null ? '' : (diff > 0 ? ' diff-positive' : (diff < 0 ? ' diff-negative' : ''));
+    return `<div class="analysis-block"><span class="analysis-label">${escapeHtml(label)}</span><div class="analysis-value${text ? '' : ' empty-value'}${diffCls}">${text ? escapeHtml(text) : '–'}</div></div>`;
+  }
+
+  function recentGameViewHtml(g, index){
+    const hasData = g.opponent || g.score || g.topscorer;
+    if(!hasData) return `<div class="recent-game-view-card"><div class="rgv-top">Spiel ${index+1}<span class="empty-value">–</span></div></div>`;
+    const venueLabel = g.venue === 'heim' ? 'H' : (g.venue === 'auswaerts' ? 'A' : '');
+    return `
+      <div class="recent-game-view-card">
+        <div class="rgv-top"><span>${venueLabel ? `<span class="rgv-venue">${venueLabel}</span>` : ''}vs ${escapeHtml(g.opponent || '–')}</span><span>${escapeHtml(g.score || '–')}</span></div>
+        ${g.topscorer ? `<div class="rgv-meta">Topscorer: ${escapeHtml(g.topscorer)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderTeamFormDashboard(){
+    const homeBox = document.getElementById('dashboard-form-home');
+    const awayBox = document.getElementById('dashboard-form-away');
+    if(!homeBox || !awayBox) return;
+    document.getElementById('dashboard-form-home-title').textContent = teams.home || 'Heimteam';
+    document.getElementById('dashboard-form-away-title').textContent = teams.away || 'Gastteam';
+    const h = teamForm.home || emptyTeamForm();
+    const a = teamForm.away || emptyTeamForm();
+    homeBox.innerHTML =
+      teamFormFieldHtml('Letzte 5', h.last5) +
+      teamFormFieldHtml('Tore', h.goals) +
+      teamFormFieldHtml('Gegentore', h.conceded) +
+      goalDiffFieldHtml('Tordifferenz', h.goals, h.conceded) +
+      teamFormFieldHtml('Punkte', h.points) +
+      teamFormFieldHtml('Tabellenplatz', h.position) +
+      teamFormFieldHtml('xGoals letztes Spiel', h.xgoals) +
+      teamFormFieldHtml('Effizienz letztes Spiel', h.efficiency) +
+      teamFormFieldHtml('Wurfeffizienz letztes Spiel', h.shooteff) +
+      teamFormFieldHtml('xS letztes Spiel', h.xs) +
+      teamFormFieldHtml('Saves letztes Spiel', h.saves) +
+      teamFormFieldHtml('Ballverluste letztes Spiel', h.turnovers) +
+      teamFormFieldHtml('7-Meter-Quote letztes Spiel', h.sevenm);
+    awayBox.innerHTML =
+      teamFormFieldHtml('Letzte 5', a.last5) +
+      teamFormFieldHtml('Tore', a.goals) +
+      teamFormFieldHtml('Gegentore', a.conceded) +
+      goalDiffFieldHtml('Tordifferenz', a.goals, a.conceded) +
+      teamFormFieldHtml('Punkte', a.points) +
+      teamFormFieldHtml('Tabellenplatz', a.position) +
+      teamFormFieldHtml('xGoals letztes Spiel', a.xgoals) +
+      teamFormFieldHtml('Effizienz letztes Spiel', a.efficiency) +
+      teamFormFieldHtml('Wurfeffizienz letztes Spiel', a.shooteff) +
+      teamFormFieldHtml('xS letztes Spiel', a.xs) +
+      teamFormFieldHtml('Saves letztes Spiel', a.saves) +
+      teamFormFieldHtml('Ballverluste letztes Spiel', a.turnovers) +
+      teamFormFieldHtml('7-Meter-Quote letztes Spiel', a.sevenm);
+
+    const homeGamesBox = document.getElementById('dashboard-form-home-games');
+    const awayGamesBox = document.getElementById('dashboard-form-away-games');
+    if(homeGamesBox){
+      const hg = h.recentGames || emptyTeamForm().recentGames;
+      homeGamesBox.innerHTML = hg.map(recentGameViewHtml).join('');
+    }
+    if(awayGamesBox){
+      const ag = a.recentGames || emptyTeamForm().recentGames;
+      awayGamesBox.innerHTML = ag.map(recentGameViewHtml).join('');
+    }
+  }
+
+  ['home','away'].forEach(side=>{
+    document.getElementById(`form-${side}-goals`).addEventListener('input', ()=> updateGoalDiffDisplay(side));
+    document.getElementById(`form-${side}-conceded`).addEventListener('input', ()=> updateGoalDiffDisplay(side));
+  });
+
+  document.getElementById('form-compare-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    function readGames(side){
+      return [1,2,3].map(n => ({
+        opponent: document.getElementById(`form-${side}-rg${n}-opp`).value.trim(),
+        score: document.getElementById(`form-${side}-rg${n}-score`).value.trim(),
+        topscorer: document.getElementById(`form-${side}-rg${n}-top`).value.trim(),
+        venue: document.getElementById(`form-${side}-rg${n}-venue`).value
+      }));
+    }
+    teamForm = {
+      home: {
+        last5: document.getElementById('form-home-last5').value.trim(),
+        goals: document.getElementById('form-home-goals').value.trim(),
+        conceded: document.getElementById('form-home-conceded').value.trim(),
+        points: document.getElementById('form-home-points').value.trim(),
+        position: document.getElementById('form-home-position').value.trim(),
+        xgoals: document.getElementById('form-home-xgoals').value.trim(),
+        efficiency: document.getElementById('form-home-efficiency').value.trim(),
+        shooteff: document.getElementById('form-home-shooteff').value.trim(),
+        xs: document.getElementById('form-home-xs').value.trim(),
+        saves: document.getElementById('form-home-saves').value.trim(),
+        turnovers: document.getElementById('form-home-turnovers').value.trim(),
+        sevenm: document.getElementById('form-home-sevenm').value.trim(),
+        recentGames: readGames('home')
+      },
+      away: {
+        last5: document.getElementById('form-away-last5').value.trim(),
+        goals: document.getElementById('form-away-goals').value.trim(),
+        conceded: document.getElementById('form-away-conceded').value.trim(),
+        points: document.getElementById('form-away-points').value.trim(),
+        position: document.getElementById('form-away-position').value.trim(),
+        xgoals: document.getElementById('form-away-xgoals').value.trim(),
+        efficiency: document.getElementById('form-away-efficiency').value.trim(),
+        shooteff: document.getElementById('form-away-shooteff').value.trim(),
+        xs: document.getElementById('form-away-xs').value.trim(),
+        saves: document.getElementById('form-away-saves').value.trim(),
+        turnovers: document.getElementById('form-away-turnovers').value.trim(),
+        sevenm: document.getElementById('form-away-sevenm').value.trim(),
+        recentGames: readGames('away')
+      }
+    };
+    const status = document.getElementById('form-status');
+    try{
+      await persistTeamForm();
+      status.textContent = 'Gespeichert ✓';
+    }catch(err){
+      status.textContent = 'Fehler beim Speichern';
+    }
+    status.style.opacity = '1';
+    clearTimeout(window.__formStatusTimer);
+    window.__formStatusTimer = setTimeout(()=>{ status.style.opacity = '0'; }, 2500);
+    renderTeamFormDashboard();
+  });
+
+  /* ---------- Direkter Vergleich (Head-to-Head) ---------- */
+  async function loadH2HData(){
+    try{
+      const res = await window.storage.get(H2H_KEY, false);
+      h2h = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      h2h = [];
+    }
+    renderH2HList();
+  }
+
+  async function persistH2H(){
+    try{ await window.storage.set(H2H_KEY, JSON.stringify(h2h), false); }
+    catch(e){ console.error('Speichern fehlgeschlagen', e); }
+  }
+
+  function parseScore(score){
+    const m = String(score || '').trim().match(/^(\d+)\s*:\s*(\d+)$/);
+    if(!m) return null;
+    return { a: parseInt(m[1], 10), b: parseInt(m[2], 10) };
+  }
+
+  function formatH2HDate(dateStr){
+    return (dateStr || '').trim();
+  }
+
+  function h2hSortKey(dateStr){
+    const m = String(dateStr || '').trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if(!m) return '0000-00-00';
+    return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  }
+
+  function h2hCurrentGoals(entry){
+    const parsed = parseScore(entry.score);
+    if(!parsed) return null;
+    if(entry.homeTeam === teams.home && entry.awayTeam === teams.away){
+      return { home: parsed.a, away: parsed.b };
+    }
+    if(entry.homeTeam === teams.away && entry.awayTeam === teams.home){
+      return { home: parsed.b, away: parsed.a };
+    }
+    return null;
+  }
+
+  function h2hCardColor(entry){
+    const g = h2hCurrentGoals(entry);
+    if(!g) return null;
+    if(g.home > g.away) return '#2ac6b3';
+    if(g.home < g.away) return '#f35561';
+    return '#a1a9b6';
+  }
+
+  function h2hSummary(){
+    let homeWins = 0, awayWins = 0, draws = 0;
+    h2h.forEach(entry=>{
+      const g = h2hCurrentGoals(entry);
+      if(!g) return;
+      if(g.home > g.away) homeWins++;
+      else if(g.home < g.away) awayWins++;
+      else draws++;
+    });
+    return { homeWins, awayWins, draws };
+  }
+
+  document.getElementById('h2h-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const date = document.getElementById('h2h-date').value.trim();
+    const competition = document.getElementById('h2h-competition').value.trim();
+    const homeTeam = resolveTeam('h2h-hometeam', 'h2h-hometeam-custom');
+    const awayTeam = resolveTeam('h2h-awayteam', 'h2h-awayteam-custom');
+    const score = document.getElementById('h2h-score').value.trim();
+    const remarks = document.getElementById('h2h-remarks').value.trim();
+    if(!homeTeam || !awayTeam || !score) return;
+
+    if(editingH2HId){
+      const entry = h2h.find(x => x.id === editingH2HId);
+      if(entry){
+        Object.assign(entry, { date, competition, homeTeam, awayTeam, score, remarks });
+      }
+      editingH2HId = null;
+      setEditUI('h2h-submit-btn', 'h2h-cancel-btn', false, 'Duell speichern', 'Duell aktualisieren');
+    }else{
+      h2h.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        date, competition, homeTeam, awayTeam, score, remarks, createdAt: Date.now()
+      });
+    }
+
+    e.target.reset();
+    resetTeamField('h2h-hometeam', 'h2h-hometeam-custom');
+    resetTeamField('h2h-awayteam', 'h2h-awayteam-custom');
+    await persistH2H();
+    renderH2HList();
+  });
+
+  document.getElementById('h2h-cancel-btn').addEventListener('click', ()=>{
+    editingH2HId = null;
+    document.getElementById('h2h-form').reset();
+    resetTeamField('h2h-hometeam', 'h2h-hometeam-custom');
+    resetTeamField('h2h-awayteam', 'h2h-awayteam-custom');
+    setEditUI('h2h-submit-btn', 'h2h-cancel-btn', false, 'Duell speichern', 'Duell aktualisieren');
+  });
+
+  function editH2H(id){
+    const entry = h2h.find(x => x.id === id);
+    if(!entry) return;
+    document.getElementById('h2h-date').value = entry.date || '';
+    document.getElementById('h2h-competition').value = entry.competition || '';
+    setTeamFieldValue('h2h-hometeam', 'h2h-hometeam-custom', entry.homeTeam || '');
+    setTeamFieldValue('h2h-awayteam', 'h2h-awayteam-custom', entry.awayTeam || '');
+    document.getElementById('h2h-score').value = entry.score || '';
+    document.getElementById('h2h-remarks').value = entry.remarks || '';
+    editingH2HId = id;
+    setEditUI('h2h-submit-btn', 'h2h-cancel-btn', true, 'Duell speichern', 'Duell aktualisieren');
+    document.getElementById('h2h-date').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+
+  async function deleteH2H(id){
+    h2h = h2h.filter(x => x.id !== id);
+    await persistH2H();
+    renderH2HList();
+  }
+
+  function renderH2HList(){
+    const list = document.getElementById('h2h-list');
+    const countBadge = document.getElementById('h2h-count-badge');
+    const summaryBox = document.getElementById('h2h-summary');
+    if(!list || !countBadge || !summaryBox) return;
+    countBadge.textContent = h2h.length;
+
+    if(h2h.length === 0){
+      list.innerHTML = '<div class="empty">Noch keine vergangenen Duelle erfasst.</div>';
+      summaryBox.innerHTML = '';
+      return;
+    }
+
+    const sum = h2hSummary();
+    summaryBox.innerHTML = `
+      <div class="h2h-summary-chip"><span class="n">${sum.homeWins}</span><span class="l">${escapeHtml(teams.home || 'Heim')} Siege</span></div>
+      <div class="h2h-summary-chip"><span class="n">${sum.draws}</span><span class="l">Unentschieden</span></div>
+      <div class="h2h-summary-chip"><span class="n">${sum.awayWins}</span><span class="l">${escapeHtml(teams.away || 'Gast')} Siege</span></div>
+    `;
+
+    const sorted = [...h2h].sort((a,b)=> h2hSortKey(b.date).localeCompare(h2hSortKey(a.date)));
+
+    list.innerHTML = sorted.map(entry=>{
+      const parsed = parseScore(entry.score);
+      const homeWon = parsed && parsed.a > parsed.b;
+      const awayWon = parsed && parsed.b > parsed.a;
+      const color = h2hCardColor(entry);
+      const dateLabel = formatH2HDate(entry.date);
+      return `
+        <div class="card"${color ? ` style="--tag-color:${color}"` : ''}>
+          <div class="card-top">
+            <span class="card-title">${dateLabel ? escapeHtml(dateLabel) : 'Ohne Datum'}${entry.competition ? ' · ' + escapeHtml(entry.competition) : ''}</span>
+            <span class="card-actions">
+              <button class="edit-btn" onclick="editH2H('${entry.id}')" title="Bearbeiten">✎</button>
+              <button class="del-btn" onclick="deleteH2H('${entry.id}')" title="Löschen">✕</button>
+            </span>
+          </div>
+          <div class="h2h-score-row">
+            <span class="h2h-team${homeWon ? ' h2h-winner' : ''}">${escapeHtml(entry.homeTeam || '–')}</span>
+            <span class="h2h-score">${escapeHtml(entry.score || '–')}</span>
+            <span class="h2h-team${awayWon ? ' h2h-winner' : ''}">${escapeHtml(entry.awayTeam || '–')}</span>
+          </div>
+          ${entry.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(entry.remarks)}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderAnalysisForm(){
+    const a = analysis[analysisSide] || emptyAnalysis();
+    document.getElementById('an-defense').value = a.defense || '';
+    document.getElementById('an-offense').value = a.offense || '';
+    document.getElementById('an-strengths').value = a.strengths || '';
+    document.getElementById('an-weaknesses').value = a.weaknesses || '';
+    document.getElementById('an-remarks').value = a.remarks || '';
+    anKeyPlayersSelection = Array.isArray(a.keyPlayers) ? [...a.keyPlayers] : [];
+    renderKeyPlayersPicker();
+    anTeamStats = Array.isArray(a.teamStats) ? a.teamStats.map(s => ({...s})) : [];
+    document.getElementById('an-stat-label').value = '';
+    document.getElementById('an-stat-value').value = '';
+    renderTeamStatsList();
+  }
+
+  function renderTeamStatsList(){
+    const list = document.getElementById('an-stats-list');
+    if(anTeamStats.length === 0){
+      list.innerHTML = '';
+      return;
+    }
+    list.innerHTML = anTeamStats.map((s, i) => `
+      <span class="team-stat-chip">
+        <span class="k">${escapeHtml(s.label)}</span>
+        <span class="v">${escapeHtml(s.value)}</span>
+        <button type="button" onclick="removeTeamStat(${i})" title="Entfernen">✕</button>
+      </span>
+    `).join('');
+  }
+
+  function removeTeamStat(index){
+    anTeamStats.splice(index, 1);
+    renderTeamStatsList();
+  }
+
+  document.getElementById('an-stat-add-btn').addEventListener('click', ()=>{
+    const labelEl = document.getElementById('an-stat-label');
+    const valueEl = document.getElementById('an-stat-value');
+    const label = labelEl.value.trim();
+    const value = valueEl.value.trim();
+    if(!label || !value) return;
+    anTeamStats.push({ label, value });
+    labelEl.value = '';
+    valueEl.value = '';
+    labelEl.focus();
+    renderTeamStatsList();
+  });
+
+  function renderKeyPlayersPicker(){
+    const picker = document.getElementById('an-key-players-picker');
+    const sideTeam = teams[analysisSide];
+    const sidePlayers = players.filter(p => p.team === sideTeam).sort(comparePlayersForSelect);
+
+    if(sidePlayers.length === 0){
+      picker.innerHTML = '<div class="empty">Noch keine Spieler für dieses Team angelegt.</div>';
+    }else{
+      picker.innerHTML = sidePlayers.map(p => `
+        <button type="button" class="chip-select-btn${anKeyPlayersSelection.includes(p.name) ? ' selected' : ''}" data-name="${escapeHtml(p.name)}">
+          ${p.number ? '#'+escapeHtml(p.number)+' ' : ''}${escapeHtml(p.name)}
+        </button>
+      `).join('');
+      picker.querySelectorAll('.chip-select-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const name = btn.dataset.name;
+          if(anKeyPlayersSelection.includes(name)){
+            anKeyPlayersSelection = anKeyPlayersSelection.filter(n => n !== name);
+          }else{
+            anKeyPlayersSelection.push(name);
+          }
+          btn.classList.toggle('selected');
+          updateKeyPlayersCount();
+        });
+      });
+    }
+    updateKeyPlayersCount();
+  }
+
+  function updateKeyPlayersCount(){
+    const countEl = document.getElementById('an-key-players-count');
+    const n = anKeyPlayersSelection.length;
+    countEl.textContent = `${n} ausgewählt${n < 3 ? ' — mindestens 3 empfohlen' : ''}`;
+    countEl.classList.toggle('ok', n >= 3);
+  }
+
+  document.getElementById('an-mode-home').addEventListener('click', ()=>{
+    analysisSide = 'home';
+    document.getElementById('an-mode-home').classList.add('active');
+    document.getElementById('an-mode-away').classList.remove('active');
+    renderAnalysisForm();
+  });
+  document.getElementById('an-mode-away').addEventListener('click', ()=>{
+    analysisSide = 'away';
+    document.getElementById('an-mode-away').classList.add('active');
+    document.getElementById('an-mode-home').classList.remove('active');
+    renderAnalysisForm();
+  });
+
+  document.getElementById('analysis-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    analysis[analysisSide] = {
+      defense: document.getElementById('an-defense').value.trim(),
+      offense: document.getElementById('an-offense').value.trim(),
+      strengths: document.getElementById('an-strengths').value.trim(),
+      weaknesses: document.getElementById('an-weaknesses').value.trim(),
+      keyPlayers: [...anKeyPlayersSelection],
+      teamStats: anTeamStats.map(s => ({...s})),
+      remarks: document.getElementById('an-remarks').value.trim()
+    };
+    const status = document.getElementById('analysis-status');
+    try{
+      await persistAnalysis();
+      status.textContent = 'Gespeichert ✓';
+    }catch(err){
+      status.textContent = 'Fehler beim Speichern';
+    }
+    status.style.opacity = '1';
+    clearTimeout(window.__anStatusTimer);
+    window.__anStatusTimer = setTimeout(()=>{ status.style.opacity = '0'; }, 2500);
+  });
+
+  function analysisFieldHtml(label, value){
+    return `<div class="analysis-block"><span class="analysis-label">${escapeHtml(label)}</span><div class="analysis-value${value ? '' : ' empty-value'}">${value ? escapeHtml(value) : '–'}</div></div>`;
+  }
+
+  function renderDashboardAnalysis(){
+    document.getElementById('dashboard-analysis-home-title').textContent = teams.home || 'Heimteam';
+    document.getElementById('dashboard-analysis-away-title').textContent = teams.away || 'Gastteam';
+
+    ['home','away'].forEach(side=>{
+      const a = analysis[side] || emptyAnalysis();
+      const container = document.getElementById('dashboard-analysis-' + side);
+      const keyPlayersText = (Array.isArray(a.keyPlayers) && a.keyPlayers.length) ? a.keyPlayers.join(', ') : '';
+      const teamStatsHtml = (Array.isArray(a.teamStats) && a.teamStats.length)
+        ? a.teamStats.map(s => analysisFieldHtml(s.label, s.value)).join('')
+        : '';
+      container.innerHTML =
+        analysisFieldHtml('Abwehrsystem', a.defense) +
+        analysisFieldHtml('Angriffssystem', a.offense) +
+        analysisFieldHtml('Stärken', a.strengths) +
+        analysisFieldHtml('Schwächen', a.weaknesses) +
+        analysisFieldHtml('Schlüsselspieler', keyPlayersText) +
+        teamStatsHtml +
+        analysisFieldHtml('Bemerkungen', a.remarks);
+    });
+  }
+
+  function updateImagePreview(key, dataUrl){
+    const preview = document.getElementById('preview-' + key);
+    const placeholder = document.getElementById('placeholder-' + key);
+    const removeBtn = document.getElementById('remove-' + key);
+    if(dataUrl){
+      preview.src = dataUrl;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+      removeBtn.style.display = 'inline-block';
+    }else{
+      preview.removeAttribute('src');
+      preview.style.display = 'none';
+      placeholder.style.display = 'block';
+      removeBtn.style.display = 'none';
+    }
+  }
+
+  function renderMatchdayForm(){
+    document.getElementById('m-schiri1').value = matchday.schiri1 || '';
+    document.getElementById('m-schiri2').value = matchday.schiri2 || '';
+    document.getElementById('m-zeitnehmer').value = matchday.zeitnehmer || '';
+    document.getElementById('m-sekretaer').value = matchday.sekretaer || '';
+    document.getElementById('m-remarks').value = matchday.remarks || '';
+    document.getElementById('m-liveticker').value = matchday.livetickerUrl || '';
+    updateLivetickerButton();
+    updateImagePreview('tabelle', matchday.tabelleImg);
+    updateImagePreview('spieltag', matchday.spieltagImg);
+  }
+
+  function updateLivetickerButton(){
+    const btn = document.getElementById('liveticker-btn');
+    if(matchday.livetickerUrl){
+      btn.href = matchday.livetickerUrl;
+      btn.classList.remove('hidden');
+    }else{
+      btn.classList.add('hidden');
+      btn.href = '#';
+    }
+  }
+
+  function handleImageUpload(inputId, previewKey, dataKey){
+    document.getElementById(inputId).addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        matchday[dataKey] = reader.result;
+        updateImagePreview(previewKey, reader.result);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  handleImageUpload('m-tabelle-file', 'tabelle', 'tabelleImg');
+  handleImageUpload('m-spieltag-file', 'spieltag', 'spieltagImg');
+
+  document.getElementById('remove-tabelle').addEventListener('click', ()=>{
+    matchday.tabelleImg = null;
+    document.getElementById('m-tabelle-file').value = '';
+    updateImagePreview('tabelle', null);
+  });
+  document.getElementById('remove-spieltag').addEventListener('click', ()=>{
+    matchday.spieltagImg = null;
+    document.getElementById('m-spieltag-file').value = '';
+    updateImagePreview('spieltag', null);
+  });
+
+  document.getElementById('matchday-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    matchday.schiri1 = document.getElementById('m-schiri1').value.trim();
+    matchday.schiri2 = document.getElementById('m-schiri2').value.trim();
+    matchday.zeitnehmer = document.getElementById('m-zeitnehmer').value.trim();
+    matchday.sekretaer = document.getElementById('m-sekretaer').value.trim();
+    matchday.remarks = document.getElementById('m-remarks').value.trim();
+    matchday.livetickerUrl = document.getElementById('m-liveticker').value.trim();
+    updateLivetickerButton();
+    const status = document.getElementById('matchday-status');
+    try{
+      await window.storage.set(MATCHDAY_KEY, JSON.stringify(matchday), false);
+      status.textContent = 'Gespeichert ✓';
+    }catch(err){
+      status.textContent = 'Fehler beim Speichern (Bild evtl. zu groß)';
+    }
+    status.style.opacity = '1';
+    clearTimeout(window.__mdStatusTimer);
+    window.__mdStatusTimer = setTimeout(()=>{ status.style.opacity = '0'; }, 2500);
+  });
+
+  /* ---------- Search (combines facts + stats + penalties) ---------- */
+  function getCombinedRecords(){
+    const factRecords = entries.map(en => ({
+      id: en.id, title: en.title, category: en.category, color: en.color || null,
+      body: en.text, meta: en.team || null, remarks: en.remarks || null
+    }));
+    const statRecords = stats.map(s => ({
+      id: s.id, title: s.name, category: 'Statistik', color: s.color || null,
+      body: `${s.statType}: ${s.value}`, meta: [s.team, s.season].filter(Boolean).join(' · '), remarks: s.remarks || null
+    }));
+    const penaltyRecords = penalties.map(p => ({
+      id: p.id, title: p.name, category: 'Strafe', color: p.color || null,
+      body: `Gelb: ${p.gelb} · 2 Min: ${p.zweimin} · Rot: ${p.rot}`, meta: p.team || null, remarks: p.remarks || null
+    }));
+    const h2hRecords = h2h.map(entry => ({
+      id: entry.id, title: `${entry.homeTeam || '–'} ${entry.score || ''} ${entry.awayTeam || '–'}`.trim(),
+      category: 'Direkter Vergleich', color: null,
+      body: entry.competition || 'Vergangenes Duell', meta: formatH2HDate(entry.date) || null, remarks: entry.remarks || null
+    }));
+    return [...factRecords, ...statRecords, ...penaltyRecords, ...h2hRecords];
+  }
+
+  function renderChips(){
+    const row = document.getElementById('chip-row');
+    const cats = Array.from(new Set(getCombinedRecords().map(e=>e.category))).sort();
+    const all = ['Alle', ...cats];
+    if(!all.includes(activeCategory)) activeCategory = 'Alle';
+    row.innerHTML = all.map(c =>
+      `<button class="chip ${c===activeCategory ? 'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`
+    ).join('');
+    row.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        activeCategory = chip.dataset.cat;
+        renderChips();
+        renderResults();
+      });
+    });
+  }
+
+  function renderResults(){
+    const q = document.getElementById('search-input').value.trim().toLowerCase();
+    const results = document.getElementById('results');
+    const all = getCombinedRecords();
+
+    let filtered = all.filter(rec=>{
+      const matchesCat = activeCategory === 'Alle' || rec.category === activeCategory;
+      if(!matchesCat) return false;
+      if(!q) return true;
+      const haystack = (rec.title + ' ' + rec.body + ' ' + (rec.meta || '') + ' ' + (rec.remarks || '')).toLowerCase();
+      return haystack.includes(q);
+    });
+
+    if(filtered.length === 0){
+      results.innerHTML = `<div class="empty">${all.length===0 ? 'Noch keine Einträge vorhanden.' : 'Keine Treffer für diese Suche.'}</div>`;
+      return;
+    }
+
+    results.innerHTML = filtered.map((rec,i) => `
+      <div class="rcard"${rec.color ? ` style="--tag-color:${tagColorHex(rec.color)}"` : ''} data-index="#${String(i+1).padStart(3,'0')}">
+        <div class="rcard-title">${escapeHtml(rec.title)}</div>
+        <span class="rcard-cat">${escapeHtml(rec.category)}</span>
+        <div class="rcard-text">${escapeHtml(rec.body)}</div>
+        ${rec.meta ? `<span class="stat-meta">${escapeHtml(rec.meta)}</span>` : ''}
+        ${rec.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(rec.remarks)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('search-input').addEventListener('input', renderResults);
+
+  document.getElementById('entry-search').addEventListener('input', renderInputList);
+  document.getElementById('stat-search').addEventListener('input', renderStatsList);
+  document.getElementById('penalty-search').addEventListener('input', renderPenaltyList);
+  document.getElementById('player-search').addEventListener('input', renderPlayerList);
+
+  /* ---------- Clear all ---------- */
+  /* ---------- Export / Import ---------- */
+  function exportAllData(){
+    const data = {
+      exportFormat: 'kommentatoren-kartei',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      teams, entries, stats, penalties, players, matchday, analysis, teamForm, h2h
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0,10);
+    const teamPart = (teams.home && teams.away) ? `${teams.home}-vs-${teams.away}-` : '';
+    a.href = url;
+    a.download = `kartei-export-${teamPart}${dateStr}.json`.replace(/\s+/g, '_');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  document.getElementById('export-btn').addEventListener('click', exportAllData);
+
+  /* ---------- Druckversion (PDF-fähige HTML-Datei) ---------- */
+  const PRINT_CSS = `
+    @page{ size: A4; margin: 14mm; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; background:#e9e9e9; font-family:'IBM Plex Sans', sans-serif; color:#111; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .hint-bar{ background:#1b212a; color:#cfd4dc; font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-align:center; padding:10px 16px; line-height:1.5; }
+    .hint-bar b{ color:#fff; }
+    .page{ background:#fff; width:210mm; min-height:297mm; margin:20px auto; padding:14mm; box-shadow:0 4px 24px rgba(0,0,0,0.25); page-break-after:always; position:relative; }
+    .page:last-child{ page-break-after:auto; }
+    .doc-header{ display:flex; align-items:flex-end; justify-content:space-between; border-bottom:3px solid #111; padding-bottom:10px; margin-bottom:14px; }
+    .doc-title{ font-family:'Oswald', sans-serif; font-weight:700; font-size:24px; text-transform:uppercase; letter-spacing:0.02em; margin:0; }
+    .doc-title .team-tag{ font-size:12px; font-weight:600; letter-spacing:0.08em; color:#c81e2c; display:block; margin-bottom:2px; }
+    .doc-meta{ text-align:right; font-size:11px; color:#444; line-height:1.5; }
+    .doc-meta b{ color:#111; }
+    .officials-bar{ display:flex; border:1px solid #ccc; border-radius:4px; margin-bottom:16px; overflow:hidden; }
+    .officials-bar div{ flex:1; padding:7px 10px; border-right:1px solid #ccc; }
+    .officials-bar div:last-child{ border-right:none; }
+    .officials-bar span{ display:block; font-family:'IBM Plex Mono', monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.06em; color:#888; margin-bottom:2px; }
+    .officials-bar b{ font-size:12px; }
+    .liveticker-line{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:#888; margin:-8px 0 16px; }
+    h2.section{ font-family:'Oswald', sans-serif; font-size:14px; text-transform:uppercase; letter-spacing:0.06em; background:#111; color:#fff; padding:5px 10px; margin:0 0 10px; }
+    .analysis-block{ display:grid; grid-template-columns:140px 1fr; gap:6px 14px; font-size:12px; margin-bottom:18px; }
+    .analysis-block .lbl{ font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; color:#777; padding-top:2px; }
+    .analysis-block .val{ line-height:1.5; padding:3px 0; border-bottom:1px dotted #ddd; }
+    table.squad{ width:100%; border-collapse:collapse; font-size:10.5px; table-layout:fixed; margin-bottom:18px; }
+    table.squad th{ font-family:'IBM Plex Mono', monospace; font-size:8px; text-transform:uppercase; letter-spacing:0.03em; color:#777; text-align:left; padding:5px; border-bottom:1.5px solid #111; }
+    table.squad td{ padding:6px 5px; border-bottom:1px solid #e3e3e3; vertical-align:top; overflow-wrap:break-word; }
+    table.squad td.num{ font-family:'IBM Plex Mono', monospace; font-weight:600; text-align:center; }
+    table.squad td.name{ font-weight:600; }
+    .status-tag{ display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:8px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; padding:1px 5px; border-radius:3px; border:1px solid currentColor; margin-left:4px; }
+    .status-tag.status-verletzt{ color:#c81e2c; }
+    .status-tag.status-fraglich{ color:#a67c00; }
+    .status-tag.status-gesperrt{ color:#666; }
+    .print-milestone{ font-size:9px; font-weight:400; color:#666; font-style:italic; margin-top:2px; }
+    table.squad tr.staff td{ color:#777; font-style:italic; }
+    table.squad th:nth-child(1), table.squad td.num{ width:7%; }
+    table.squad th:nth-child(2), table.squad td.name{ width:19%; }
+    table.squad th:nth-child(3){ width:17%; }
+    table.squad th:nth-child(4){ width:8%; }
+    table.squad th:nth-child(5){ width:10%; }
+    table.squad th:nth-child(6){ width:14%; }
+    table.squad th:nth-child(7){ width:12%; }
+    table.squad th:nth-child(8){ width:13%; }
+    table.data{ width:100%; border-collapse:collapse; font-size:11px; margin-bottom:18px; table-layout:fixed; }
+    table.data th{ font-family:'IBM Plex Mono', monospace; font-size:8.5px; text-transform:uppercase; letter-spacing:0.04em; color:#777; text-align:left; padding:5px; border-bottom:1.5px solid #111; }
+    table.data td{ padding:6px 5px; border-bottom:1px solid #e3e3e3; }
+    table.data td.name{ font-weight:600; }
+    table.data td.num-cell{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
+    .facts-list{ margin-bottom:18px; }
+    .fact-item{ display:flex; gap:8px; padding:6px 0; border-bottom:1px dotted #ddd; font-size:11.5px; }
+    .fact-tag{ flex:0 0 auto; font-family:'IBM Plex Mono', monospace; font-size:8.5px; text-transform:uppercase; border:1px solid #111; border-radius:3px; padding:2px 6px; height:fit-content; white-space:nowrap; }
+    .fact-body b{ font-weight:600; }
+    .fact-body{ line-height:1.4; }
+    .notes-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .notes-box{ border:1px solid #ccc; border-radius:4px; padding:8px 10px 10px; }
+    .notes-box .lbl{ font-family:'Oswald', sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#666; margin-bottom:8px; display:block; }
+    .notes-lines{ background-image:repeating-linear-gradient(to bottom, transparent, transparent 22px, #ddd 22px, #ddd 23px); height:230px; }
+    .doc-footer{ position:absolute; bottom:10mm; left:14mm; right:14mm; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:9px; color:#999; }
+    .empty-hint{ color:#999; font-style:italic; font-size:11px; padding:6px 0; }
+    @media print{ body{ background:#fff; } .hint-bar{ display:none; } .page{ box-shadow:none; margin:0; width:auto; min-height:auto; } }
+  `;
+
+  function pd(val){ return (val === null || val === undefined || val === '') ? '–' : escapeHtml(val); }
+
+  function printAnalysisBlock(a){
+    a = a || emptyAnalysis();
+    const keyPlayers = (Array.isArray(a.keyPlayers) && a.keyPlayers.length) ? a.keyPlayers.join(', ') : '';
+    const teamStatsRows = (Array.isArray(a.teamStats) && a.teamStats.length)
+      ? a.teamStats.map(s => `<span class="lbl">${escapeHtml(s.label)}</span><span class="val">${escapeHtml(s.value)}</span>`).join('')
+      : '';
+    return `
+      <div class="analysis-block">
+        <span class="lbl">Abwehrsystem</span><span class="val">${pd(a.defense)}</span>
+        <span class="lbl">Angriffssystem</span><span class="val">${pd(a.offense)}</span>
+        <span class="lbl">Stärken</span><span class="val">${pd(a.strengths)}</span>
+        <span class="lbl">Schwächen</span><span class="val">${pd(a.weaknesses)}</span>
+        <span class="lbl">Schlüsselspieler</span><span class="val">${pd(keyPlayers)}</span>
+        ${teamStatsRows}
+      </div>
+    `;
+  }
+
+  function printSquadTable(teamName){
+    const squad = players.filter(p => p.team === teamName).sort(comparePlayersForSelect);
+    if(squad.length === 0) return '<div class="empty-hint">Noch keine Spieler für dieses Team erfasst.</div>';
+    const rows = squad.map(p => {
+      const badge = p.role ? (ROLE_ABBR[p.role] || p.role.slice(0,2).toUpperCase()) : (p.number ? escapeHtml(p.number) : '–');
+      if(p.role){
+        return `<tr class="staff"><td class="num">${badge}</td><td class="name">${escapeHtml(p.name)}</td><td>${escapeHtml(p.role)}</td><td colspan="5"></td></tr>`;
+      }
+      const statusCls = statusBadgeClass(p.status);
+      const statusTag = statusCls ? ` <span class="status-tag ${statusCls}">${escapeHtml(p.status)}</span>` : '';
+      const milestoneLine = (p.milestoneCurrent || p.milestoneTarget) ? `<div class="print-milestone">🏆 ${escapeHtml(p.milestoneCurrent || '')}${p.milestoneCurrent && p.milestoneTarget ? ' → ' : ''}${escapeHtml(p.milestoneTarget || '')}</div>` : '';
+      return `<tr>
+        <td class="num">${badge}</td><td class="name">${escapeHtml(p.name)}${statusTag}${milestoneLine}</td><td>${pd(p.position)}</td>
+        <td>${pd(p.age)}</td><td>${p.height ? escapeHtml(p.height)+' cm' : '–'}</td><td>${pd(p.nationality)}</td>
+        <td>${pd(p.contract)}</td><td>${pd(p.lastClub)}</td>
+      </tr>`;
+    }).join('');
+    return `
+      <table class="squad">
+        <thead><tr><th>Nr.</th><th>Name</th><th>Position</th><th>Alter</th><th>Größe</th><th>Nationalität</th><th>Vertrag bis</th><th>Letzter Verein</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  function printStatsTable(teamName){
+    const rows = stats.filter(s => s.team === teamName);
+    if(rows.length === 0) return '<div class="empty-hint">Keine Statistiken erfasst.</div>';
+    return `
+      <table class="data">
+        <thead><tr><th>Name</th><th>Statistik-Art</th><th>Wert</th><th>Saison</th></tr></thead>
+        <tbody>${rows.map(s => `<tr><td class="name">${escapeHtml(s.name)}</td><td>${pd(s.statType)}</td><td class="num-cell">${escapeHtml(s.value)}</td><td>${pd(s.season)}</td></tr>`).join('')}</tbody>
+      </table>
+    `;
+  }
+
+  function printPenaltiesTable(teamName){
+    const rows = penalties.filter(p => p.team === teamName);
+    if(rows.length === 0) return '<div class="empty-hint">Keine Strafen erfasst.</div>';
+    return `
+      <table class="data">
+        <thead><tr><th>Name</th><th>Gelb</th><th>2 Minuten</th><th>Rot</th></tr></thead>
+        <tbody>${rows.map(p => `<tr><td class="name">${escapeHtml(p.name)}</td><td class="num-cell">${p.gelb}</td><td class="num-cell">${p.zweimin}</td><td class="num-cell">${p.rot}</td></tr>`).join('')}</tbody>
+      </table>
+    `;
+  }
+
+  function printFactsList(teamName){
+    const rows = entries.filter(en => en.team === teamName);
+    if(rows.length === 0) return '<div class="empty-hint">Keine Notizen für dieses Team erfasst.</div>';
+    return `
+      <div class="facts-list">
+        ${rows.map(en => `
+          <div class="fact-item">
+            <span class="fact-tag">${escapeHtml(en.category)}</span>
+            <span class="fact-body">${en.player ? `<b>${escapeHtml(en.player)}</b> — ` : ''}${escapeHtml(en.text)}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function printOfficialsBar(){
+    return `
+      <div class="officials-bar">
+        <div><span>Schiri 1</span><b>${pd(matchday.schiri1)}</b></div>
+        <div><span>Schiri 2</span><b>${pd(matchday.schiri2)}</b></div>
+        <div><span>Zeitnehmer</span><b>${pd(matchday.zeitnehmer)}</b></div>
+        <div><span>Sekretär</span><b>${pd(matchday.sekretaer)}</b></div>
+      </div>
+      ${matchday.livetickerUrl ? `<div class="liveticker-line">Liveticker: ${escapeHtml(matchday.livetickerUrl)}</div>` : ''}
+    `;
+  }
+
+  function printTeamPages(teamName, opponentName, tagLabel, analysisSideKey){
+    const profilePage = `
+      <div class="page">
+        <div class="doc-header">
+          <h1 class="doc-title"><span class="team-tag">${tagLabel} · Handball-Bundesliga Frauen</span>${escapeHtml(teamName || '–')}</h1>
+          <div class="doc-meta"><b>gegen ${escapeHtml(opponentName || '–')}</b><br>Erstellt aus der Kommentatoren-Kartei</div>
+        </div>
+        ${printOfficialsBar()}
+        <h2 class="section">Team-Analyse</h2>
+        ${printAnalysisBlock(analysis[analysisSideKey])}
+        <h2 class="section">Kader</h2>
+        ${printSquadTable(teamName)}
+        <div class="doc-footer">Kommentatoren-Kartei · ${escapeHtml(teamName || '–')} — Seite 1 / 2</div>
+      </div>
+    `;
+    const statsPage = `
+      <div class="page">
+        <div class="doc-header">
+          <h1 class="doc-title"><span class="team-tag">${tagLabel} · Statistiken &amp; Strafen</span>${escapeHtml(teamName || '–')}</h1>
+          <div class="doc-meta"><b>gegen ${escapeHtml(opponentName || '–')}</b><br>Erstellt aus der Kommentatoren-Kartei</div>
+        </div>
+        <h2 class="section">Statistiken</h2>
+        ${printStatsTable(teamName)}
+        <h2 class="section">Strafen</h2>
+        ${printPenaltiesTable(teamName)}
+        <h2 class="section">Notizen &amp; Fakten</h2>
+        ${printFactsList(teamName)}
+        <h2 class="section">Live-Notizen</h2>
+        <div class="notes-grid">
+          <div class="notes-box"><span class="lbl">1. Halbzeit</span><div class="notes-lines"></div></div>
+          <div class="notes-box"><span class="lbl">2. Halbzeit</span><div class="notes-lines"></div></div>
+        </div>
+        <div class="doc-footer">Kommentatoren-Kartei · ${escapeHtml(teamName || '–')} — Seite 2 / 2</div>
+      </div>
+    `;
+    return profilePage + statsPage;
+  }
+
+  function generatePrintHtml(){
+    const pagesHtml = printTeamPages(teams.home, teams.away, 'Heimteam', 'home')
+                     + printTeamPages(teams.away, teams.home, 'Gastteam', 'away');
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Spielbericht — ${escapeHtml(teams.home || '')} vs ${escapeHtml(teams.away || '')}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>${PRINT_CSS}</style>
+</head>
+<body>
+<div class="hint-bar">Zum Drucken oder als PDF speichern: <b>Strg/Cmd + P</b> in diesem Fenster.</div>
+${pagesHtml}
+</body>
+</html>`;
+  }
+
+  document.getElementById('print-export-btn').addEventListener('click', ()=>{
+    const html = generatePrintHtml();
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0,10);
+    const teamPart = (teams.home && teams.away) ? `${teams.home}-vs-${teams.away}-` : '';
+    a.href = url;
+    a.download = `spielbericht-${teamPart}${dateStr}.html`.replace(/\s+/g, '_');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Druckversion heruntergeladen — öffnen und mit Strg/Cmd+P drucken oder als PDF speichern.');
+  });
+
+  document.getElementById('import-file-input').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if(!data || typeof data !== 'object' || data.exportFormat !== 'kommentatoren-kartei'){
+        throw new Error('invalid-format');
+      }
+
+      const sure = await showConfirm('Import überschreibt alle aktuell gespeicherten Daten (Einträge, Statistiken, Strafen, Spieltag, Teams) mit dem Inhalt dieser Datei. Fortfahren?');
+      if(!sure){ e.target.value = ''; return; }
+
+      teams = data.teams || { home:'', away:'' };
+      entries = data.entries || [];
+      stats = data.stats || [];
+      penalties = data.penalties || [];
+      players = data.players || [];
+      matchday = data.matchday || { schiri1:'', schiri2:'', zeitnehmer:'', sekretaer:'', tabelleImg:null, spieltagImg:null, remarks:'', livetickerUrl:'' };
+      analysis = data.analysis || { home: emptyAnalysis(), away: emptyAnalysis() };
+      teamForm = data.teamForm || { home: emptyTeamForm(), away: emptyTeamForm() };
+      h2h = data.h2h || [];
+
+      await persistTeams();
+      await persist();
+      await persistStats();
+      await persistPenalties();
+      await persistPlayers();
+      try{ await window.storage.set(MATCHDAY_KEY, JSON.stringify(matchday), false); }catch(err){}
+      await persistAnalysis();
+      await persistTeamForm();
+      await persistH2H();
+
+      renderInputList();
+      renderStatsList();
+      renderPenaltyList();
+      renderPlayerList();
+      populatePlayerSelect();
+      renderMatchdayForm();
+      renderAnalysisForm();
+      renderTeamFormPage();
+      renderH2HList();
+      renderChips();
+      renderResults();
+
+      if(teams.home && teams.away){ showApp(); } else { showSetup(false); }
+
+      showToast('Import erfolgreich! Deine Daten wurden geladen.');
+    }catch(err){
+      showToast('Die Datei konnte nicht gelesen werden. Bitte stelle sicher, dass es eine gültige Export-Datei aus dieser Kartei ist.', true);
+    }
+    e.target.value = '';
+  });
+
+  /* ---------- Init ---------- */
+  async function init(){
+    await loadTeamsData();
+    await loadEntries();
+    await loadMatchdayData();
+    await loadAnalysisData();
+    await loadTeamFormData();
+    await loadH2HData();
+    if(teams.home && teams.away){
+      showApp();
+    }else{
+      showSetup(false);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>
