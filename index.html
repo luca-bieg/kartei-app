@@ -84,6 +84,17 @@
   .mode-btn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
   .mode-btn:not(.active):hover{ color:var(--text); }
 
+  .season-picker-popup{
+    position:fixed; z-index:500; background:var(--panel-2); border:1px solid var(--border);
+    border-radius:8px; padding:5px; display:flex; flex-direction:column; gap:3px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.45); min-width:170px;
+  }
+  .season-picker-option{
+    background:transparent; border:none; color:var(--text); font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px; padding:8px 10px; text-align:left; border-radius:6px; cursor:pointer; white-space:nowrap;
+  }
+  .season-picker-option:hover{ background:var(--accent); color:#fff; }
+
   .liveticker-btn{
     display:flex; align-items:center; gap:6px; background:var(--accent-soft); border:1px solid var(--accent);
     border-radius:999px; padding:8px 16px; font-family:'IBM Plex Mono', monospace; font-size:12px;
@@ -196,6 +207,12 @@
     font-family:'IBM Plex Sans', sans-serif; font-size:13px; font-weight:600; padding:11px 16px; cursor:pointer;
   }
   .form-cancel-btn:hover{ color:var(--text); }
+  .quick-action-btn{ margin-top:8px; background:var(--panel-2); border:1px dashed var(--border); color:var(--text-muted); border-radius:7px; padding:9px; font-size:12.5px; cursor:pointer; font-weight:600; width:100%; }
+  .quick-action-btn:hover{ border-color:var(--accent); color:var(--text); }
+  .qs-player-list{ display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+  .qs-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--panel-2); border:1px solid var(--border); border-radius:7px; padding:7px 10px; }
+  .qs-player-name{ font-size:12.5px; font-weight:600; color:var(--text); }
+  .qs-value-input{ width:70px; flex-shrink:0; padding:6px 8px; text-align:center; }
   .editing-banner{
     font-size:11.5px; color:var(--accent); background:var(--accent-soft); border-radius:6px;
     padding:6px 10px; margin-top:-6px;
@@ -283,6 +300,10 @@
   .remove-img-btn:hover{ color:var(--accent); }
 
   .matchday-actions{ display:flex; align-items:center; gap:14px; margin-top:2px; }
+  .qp-head{ display:flex; justify-content:flex-end; gap:4px; font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; color:var(--text-muted); margin:2px 10px -2px; }
+  .qp-head span{ width:48px; text-align:center; }
+  .qp-inputs{ display:flex; gap:4px; flex-shrink:0; }
+  .qp-inputs input{ width:48px; padding:6px 4px; text-align:center; }
   .save-status{ font-size:12px; color:var(--accent); opacity:0; transition:opacity .3s ease; }
 
   /* ---- Analyse ---- */
@@ -396,7 +417,7 @@
   @media (max-width:720px){ .dashboard-grid{ grid-template-columns:1fr; } }
   .dashboard-subview{ display:none; }
   .dashboard-subview.active{ display:block; }
-  .dash-subtabs{ max-width:400px; margin-bottom:18px; }
+  .dash-subtabs{ max-width:480px; margin-bottom:18px; }
 
   .dashboard-photos-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
   @media (max-width:720px){ .dashboard-photos-grid{ grid-template-columns:1fr; } }
@@ -412,6 +433,7 @@
   .lightbox-img{ max-width:95vw; max-height:92vh; border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
   .dashboard-col{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
   .dashboard-col h2{ font-family:'Oswald', sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:0.05em; margin:0 0 14px; color:var(--text); font-weight:600; }
+  .dashboard-col h2.dashboard-subhead{ font-size:12.5px; color:var(--text-muted); margin-top:18px; padding-top:16px; border-top:1px solid var(--border); }
   .dashboard-player-list{ display:flex; flex-direction:column; gap:8px; }
   .player-card{
     display:flex; align-items:center; gap:12px; background:var(--panel-2); border:1px solid var(--border);
@@ -429,7 +451,7 @@
   .player-card .p-position{ font-size:11.5px; color:var(--text-muted); }
 
   /* ---- Player detail modal ---- */
-  .player-detail-box{ max-width:440px; text-align:left; }
+  .confirm-box.player-detail-box{ max-width:680px; text-align:left; max-height:85vh; overflow-y:auto; }
   .player-detail-header{ display:flex; align-items:center; gap:14px; margin-bottom:16px; }
   .player-detail-header .p-number{
     font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:20px; color:var(--accent);
@@ -445,20 +467,57 @@
   .player-detail-stat{ background:var(--panel-2); border:1px solid var(--border); border-radius:7px; padding:8px 10px; }
   .player-detail-stat .pd-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); display:block; margin-bottom:2px; }
   .player-detail-stat .pd-value{ font-size:14px; font-weight:600; }
-  .player-detail-related{ max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .player-detail-related{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:8px; margin-bottom:16px; }
   .player-detail-related .related-item{
     background:var(--panel-2); border:1px solid var(--border); border-left-width:3px;
     border-left-color:var(--tag-color, var(--border)); border-radius:7px; padding:8px 10px;
     font-size:12.5px; width:100%; text-align:left; cursor:pointer; transition:all .15s ease;
-    font-family:'IBM Plex Sans', sans-serif;
+    font-family:'IBM Plex Sans', sans-serif; position:relative;
   }
   .player-detail-related .related-item:hover{ border-color:var(--accent); transform:translateX(2px); }
   .player-detail-related .related-cat{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; color:var(--accent); letter-spacing:0.05em; }
   .player-detail-related .related-body{ color:var(--text-muted); margin-top:2px; line-height:1.4; max-height:2.8em; overflow:hidden; text-overflow:ellipsis; }
+  .player-detail-related .related-remarks{ color:var(--text-muted); font-style:italic; margin-top:4px; padding-top:4px; border-top:1px solid var(--border); font-size:11.5px; line-height:1.4; }
   .player-detail-empty{ font-size:12.5px; color:var(--text-muted); font-style:italic; margin-bottom:16px; }
+  .related-hide-btn{
+    position:absolute; top:5px; right:5px; width:18px; height:18px; border-radius:50%;
+    background:var(--panel); border:1px solid var(--border); color:var(--text-muted);
+    font-size:10.5px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    padding:0; opacity:0.55; transition:all .15s ease; z-index:2;
+  }
+  .related-hide-btn:hover{ opacity:1; background:var(--accent); color:#fff; border-color:var(--accent); }
+  .related-item.is-hidden{ opacity:0.55; }
+  .hidden-entries-toggle{ grid-column:1 / -1; margin-top:2px; }
+  .hidden-entries-toggle summary{ cursor:pointer; font-size:11.5px; color:var(--text-muted); list-style:none; padding:4px 0; }
+  .hidden-entries-toggle summary::-webkit-details-marker{ display:none; }
+  .hidden-entries-toggle summary:hover{ color:var(--text); }
+  .hidden-entries-list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:8px; margin-top:8px; }
 
   .related-full-box{ max-width:440px; text-align:left; border-left-width:4px; border-left-color:var(--tag-color, var(--accent)); }
   .related-full-title{ font-family:'Oswald', sans-serif; font-size:19px; text-transform:uppercase; letter-spacing:0.03em; margin:0 0 8px; }
+
+  /* ---- Spieler-Import ---- */
+  .pimp-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .confirm-box.pimp-box{ max-width:760px; text-align:left; max-height:88vh; overflow-y:auto; }
+  .pimp-box h3{ font-family:'Oswald', sans-serif; font-size:19px; text-transform:uppercase; letter-spacing:0.03em; margin:0 0 6px; }
+  .pimp-sub{ font-size:12.5px; color:var(--text-muted); margin:0 0 14px !important; line-height:1.5; }
+  .pimp-map{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:8px 12px; align-items:center; margin-bottom:14px; }
+  .pimp-map .pimp-team{ font-size:13px; overflow-wrap:anywhere; }
+  .pimp-map .pimp-team small{ color:var(--text-muted); font-family:'IBM Plex Mono', monospace; font-size:11px; }
+  .pimp-check{ display:flex; flex-direction:row; gap:10px; align-items:flex-start; font-size:13px; line-height:1.45; margin:0 0 14px; cursor:pointer; }
+  .pimp-check input{ width:auto; margin-top:3px; flex:0 0 auto; }
+  .pimp-summary{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .pimp-chip{ font-family:'IBM Plex Mono', monospace; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--border); background:var(--panel-2); color:var(--text-muted); }
+  .pimp-chip b{ color:var(--text); }
+  .pimp-chip.new b{ color:#2ac6b3; }
+  .pimp-chip.upd b{ color:#76aeff; }
+  .pimp-chip.err b{ color:var(--accent); }
+  .pimp-detail{ border:1px solid var(--border); border-radius:8px; margin-bottom:8px; background:var(--panel-2); }
+  .pimp-detail summary{ cursor:pointer; padding:9px 12px; font-size:13px; font-weight:600; }
+  .pimp-detail ul{ margin:0; padding:0 12px 10px 30px; font-size:12.5px; line-height:1.6; color:var(--text-muted); max-height:240px; overflow:auto; }
+  .pimp-detail li b{ color:var(--text); font-weight:600; }
+  .pimp-old{ text-decoration:line-through; opacity:0.7; }
+  .pimp-ok-btn:disabled{ opacity:0.4; cursor:not-allowed; }
 
   /* ---- Confirm modal ---- */
   .confirm-overlay{
@@ -510,7 +569,7 @@
 
   <div class="mode-switch" id="mode-switch">
     <button type="button" class="mode-switch-btn active" data-mode="entry">Erfassen</button>
-    <button type="button" class="mode-switch-btn" data-mode="overview">Übersicht</button>
+    <button type="button" class="mode-switch-btn" data-mode="overview">Dashboard</button>
   </div>
 
   <div class="topbar">
@@ -579,6 +638,9 @@
         <label>Text
           <textarea id="f-text" placeholder="Der Fakt bzw. die Notiz…" required></textarea>
         </label>
+        <label>Saison (optional)
+          <input id="f-season" placeholder="z. B. 2025/26" title="Doppelklick für Schnellauswahl">
+        </label>
         <label>Bemerkungen (optional)
           <textarea id="f-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
         </label>
@@ -631,7 +693,7 @@
           <input id="s-value" placeholder="z. B. 27" required>
         </label>
         <label>Saison / Datum (optional)
-          <input id="s-season" placeholder="z. B. 2025/26">
+          <input id="s-season" placeholder="z. B. 2025/26" title="Doppelklick für Schnellauswahl">
         </label>
         <label>Bemerkungen (optional)
           <textarea id="s-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
@@ -640,12 +702,36 @@
           <button type="submit" id="stat-submit-btn">Statistik speichern</button>
           <button type="button" id="stat-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
         </div>
+
+        <h2>Schnellerfassung</h2>
+        <div class="mode-toggle" id="qs-mode-toggle">
+          <button type="button" class="mode-btn active" id="qs-mode-game" data-mode="game">Letztes Spiel</button>
+          <button type="button" class="mode-btn" id="qs-mode-season" data-mode="season">Diese Saison</button>
+        </div>
+        <label>Team
+          <select id="qs-team">
+            <option value="">– Team wählen –</option>
+          </select>
+        </label>
+        <label>Statistik-Art
+          <input id="qs-type" list="stat-type-list" placeholder="z. B. Tore">
+        </label>
+        <div id="qs-player-list" class="qs-player-list">
+          <div class="empty">Team wählen, um den Kader zu laden.</div>
+        </div>
+        <button type="button" id="qs-save-btn" class="quick-action-btn">Für alle Spieler speichern</button>
+        <span id="qs-status" class="save-status">Gespeichert ✓</span>
       </form>
 
       <div class="list-panel">
         <div class="list-head">
           <h2>Gespeicherte Statistiken</h2>
           <span id="stat-count-badge" class="count-badge">0</span>
+        </div>
+        <div class="pimp-actions">
+          <label for="stat-import-input" class="io-btn" style="cursor:pointer;" title="Statistiken aus einer Datei hinzufügen oder ergänzen – bestehende Daten bleiben erhalten">Statistik-Datei importieren</label>
+          <input type="file" id="stat-import-input" accept="application/json,.json" class="visually-hidden">
+          <button type="button" id="stat-export-btn" class="io-btn" title="Nur die Statistiken als Datei speichern">Statistiken exportieren</button>
         </div>
         <input type="text" id="stat-search" class="mini-search-input" placeholder="In Statistiken suchen…" autocomplete="off">
         <div id="stat-list" class="entry-list"></div>
@@ -682,6 +768,9 @@
             <input id="p-rot" type="number" min="0" step="1" placeholder="0">
           </label>
         </div>
+        <label>Saison (optional)
+          <input id="p-season" placeholder="z. B. 2025/26" title="Doppelklick für Schnellauswahl">
+        </label>
         <label>Bemerkungen (optional)
           <textarea id="p-remarks" class="remarks-field" placeholder="Zusätzliche Notiz…"></textarea>
         </label>
@@ -689,6 +778,23 @@
           <button type="submit" id="penalty-submit-btn">Strafe speichern</button>
           <button type="button" id="penalty-cancel-btn" class="form-cancel-btn hidden">Abbrechen</button>
         </div>
+
+        <h2>Schnellerfassung</h2>
+        <div class="mode-toggle">
+          <button type="button" class="mode-btn active" id="qp-mode-game" data-mode="game">Letztes Spiel</button>
+          <button type="button" class="mode-btn" id="qp-mode-season" data-mode="season">Diese Saison</button>
+        </div>
+        <label>Team
+          <select id="qp-team">
+            <option value="">– Team wählen –</option>
+          </select>
+        </label>
+        <div class="qp-head"><span>Gelb</span><span>2 Min</span><span>Rot</span></div>
+        <div id="qp-player-list" class="qs-player-list">
+          <div class="empty">Team wählen, um den Kader zu laden.</div>
+        </div>
+        <button type="button" id="qp-save-btn" class="quick-action-btn">Für alle Spieler speichern</button>
+        <span id="qp-status" class="save-status">Gespeichert ✓</span>
       </form>
 
       <div class="list-panel">
@@ -722,6 +828,7 @@
             <option value="">– Rolle wählen –</option>
             <option value="Trainer">Trainer</option>
             <option value="Co-Trainer">Co-Trainer</option>
+            <option value="Torwart-Trainer">Torwart-Trainer</option>
             <option value="Physio">Physio</option>
             <option value="Teambetreuer">Teambetreuer</option>
             <option value="Schiri 1">Schiri 1</option>
@@ -802,6 +909,11 @@
         <div class="list-head">
           <h2>Gespeicherte Spieler</h2>
           <span id="player-count-badge" class="count-badge">0</span>
+        </div>
+        <div class="pimp-actions">
+          <label for="player-import-input" class="io-btn" style="cursor:pointer;" title="Spieler aus einer Datei hinzufügen oder ergänzen – bestehende Daten bleiben erhalten">Spieler-Datei importieren</label>
+          <input type="file" id="player-import-input" accept="application/json,.json" class="visually-hidden">
+          <button type="button" id="player-export-btn" class="io-btn" title="Nur die Spielerliste als Datei speichern">Spielerliste exportieren</button>
         </div>
         <input type="text" id="player-search" class="mini-search-input" placeholder="In Spielern suchen…" autocomplete="off">
         <div id="player-list" class="entry-list"></div>
@@ -1086,6 +1198,7 @@
         <button type="button" class="mode-btn active" id="dash-view-teams-btn" data-view="teams">Teams</button>
         <button type="button" class="mode-btn" id="dash-view-analysis-btn" data-view="analysis">Analyse</button>
         <button type="button" class="mode-btn" id="dash-view-form-btn" data-view="form">Form</button>
+        <button type="button" class="mode-btn" id="dash-view-h2h-btn" data-view="h2h">Vergleich</button>
         <button type="button" class="mode-btn" id="dash-view-officials-btn" data-view="officials">Offizielle</button>
         <button type="button" class="mode-btn" id="dash-view-photos-btn" data-view="photos">Fotos</button>
       </div>
@@ -1095,11 +1208,23 @@
           <div class="dashboard-col">
             <h2 id="dashboard-home-title">Heimteam</h2>
             <div id="dashboard-home-list" class="dashboard-player-list"></div>
+            <h2 class="dashboard-subhead">Team-Notizen</h2>
+            <div id="dashboard-home-team-entries" class="player-detail-related"></div>
           </div>
           <div class="dashboard-col">
             <h2 id="dashboard-away-title">Gastteam</h2>
             <div id="dashboard-away-list" class="dashboard-player-list"></div>
+            <h2 class="dashboard-subhead">Team-Notizen</h2>
+            <div id="dashboard-away-team-entries" class="player-detail-related"></div>
           </div>
+        </div>
+      </div>
+
+      <div id="dashboard-h2h-view" class="dashboard-subview">
+        <div class="dashboard-col">
+          <h2>Direkter Vergleich</h2>
+          <div id="dashboard-h2h-summary" class="h2h-summary"></div>
+          <div id="dashboard-h2h-list" class="entry-list"></div>
         </div>
       </div>
 
@@ -1233,6 +1358,42 @@
 
   <div id="toast" class="toast hidden"></div>
 
+  <div id="pimp-overlay" class="confirm-overlay hidden">
+    <div class="confirm-box pimp-box">
+      <h3>Spieler-Import</h3>
+      <p class="pimp-sub" id="pimp-file-info"></p>
+      <div id="pimp-map" class="pimp-map"></div>
+      <label class="pimp-check"><input type="checkbox" id="pimp-overwrite"><span>Abweichende Werte bestehender Spieler überschreiben. Status, Status-Notiz und Meilensteine werden nie überschrieben; ohne Haken werden nur leere Felder ergänzt.</span></label>
+      <div id="pimp-result"></div>
+      <div class="confirm-actions">
+        <button id="pimp-cancel" class="confirm-cancel-btn">Abbrechen</button>
+        <button id="pimp-ok" class="confirm-ok-btn pimp-ok-btn">Importieren</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="simp-overlay" class="confirm-overlay hidden">
+    <div class="confirm-box pimp-box">
+      <h3>Statistik-Import</h3>
+      <p class="pimp-sub" id="simp-file-info"></p>
+      <div id="simp-map" class="pimp-map"></div>
+      <div class="pimp-map">
+        <div class="pimp-team">Saison / Datum</div>
+        <select id="simp-season">
+          <option value="file">Wie in der Datei</option>
+          <option value="game">Letztes Spiel</option>
+          <option value="season" id="simp-season-opt"></option>
+        </select>
+      </div>
+      <label class="pimp-check"><input type="checkbox" id="simp-overwrite"><span>Abweichende Werte bereits gespeicherter Statistiken überschreiben. Ohne Haken werden nur neue Statistiken angelegt und leere Bemerkungen ergänzt; Farbe und Ausblenden bleiben immer unverändert.</span></label>
+      <div id="simp-result"></div>
+      <div class="confirm-actions">
+        <button id="simp-cancel" class="confirm-cancel-btn">Abbrechen</button>
+        <button id="simp-ok" class="confirm-ok-btn pimp-ok-btn">Importieren</button>
+      </div>
+    </div>
+  </div>
+
   <div id="player-detail-overlay" class="confirm-overlay hidden">
     <div class="confirm-box player-detail-box">
       <div id="player-detail-content"></div>
@@ -1348,6 +1509,7 @@
   let editingPlayerId = null;
   let editingH2HId = null;
   let h2h = [];
+  let currentPlayerDetailId = null;
 
   const TAG_COLORS = [
     { key: 'red',    hex: '#f35561', label: 'Rot' },
@@ -1513,6 +1675,30 @@
       if([teams.home, teams.away, '', CUSTOM_TEAM_VALUE].includes(homeCurrent)) h2hHomeSel.value = homeCurrent;
       if([teams.home, teams.away, '', CUSTOM_TEAM_VALUE].includes(awayCurrent)) h2hAwaySel.value = awayCurrent;
     }
+
+    const qsTeamSel = document.getElementById('qs-team');
+    if(qsTeamSel){
+      const qsCurrent = qsTeamSel.value;
+      qsTeamSel.innerHTML = `
+        <option value="">– Team wählen –</option>
+        <option value="${escapeHtml(teams.home)}">${escapeHtml(teams.home)}</option>
+        <option value="${escapeHtml(teams.away)}">${escapeHtml(teams.away)}</option>
+      `;
+      if([teams.home, teams.away, ''].includes(qsCurrent)) qsTeamSel.value = qsCurrent;
+      if(typeof renderQuickStatRoster === 'function') renderQuickStatRoster();
+    }
+
+    const qpTeamSel = document.getElementById('qp-team');
+    if(qpTeamSel){
+      const qpCurrent = qpTeamSel.value;
+      qpTeamSel.innerHTML = `
+        <option value="">– Team wählen –</option>
+        <option value="${escapeHtml(teams.home)}">${escapeHtml(teams.home)}</option>
+        <option value="${escapeHtml(teams.away)}">${escapeHtml(teams.away)}</option>
+      `;
+      if([teams.home, teams.away, ''].includes(qpCurrent)) qpTeamSel.value = qpCurrent;
+      if(typeof renderQuickPenaltyRoster === 'function') renderQuickPenaltyRoster();
+    }
   }
 
   const CUSTOM_PLAYER_VALUE = '__custom_player__';
@@ -1550,7 +1736,7 @@
     return comparePlayersForSelect(a, b);
   }
 
-  const ROLE_ABBR = { 'Trainer':'TR', 'Co-Trainer':'CO', 'Physio':'PH', 'Teambetreuer':'TB', 'Schiri 1':'S1', 'Schiri 2':'S2', 'Zeitnehmer':'ZN', 'Sekretär':'SK' };
+  const ROLE_ABBR = { 'Trainer':'TR', 'Co-Trainer':'CO', 'Torwart-Trainer':'TT', 'Physio':'PH', 'Teambetreuer':'TB', 'Schiri 1':'S1', 'Schiri 2':'S2', 'Zeitnehmer':'ZN', 'Sekretär':'SK' };
 
   function statusBadgeClass(status){
     if(status === 'Verletzt') return 'status-verletzt';
@@ -1799,6 +1985,8 @@
     populatePlayerSelect();
     renderChips();
     renderResults();
+    renderQuickStatRoster();
+    renderQuickPenaltyRoster();
   }
 
   async function persist(){
@@ -1832,6 +2020,7 @@
     const color = document.getElementById('f-color').value;
     const player = document.getElementById('f-player').value;
     const text = document.getElementById('f-text').value.trim();
+    const season = document.getElementById('f-season').value.trim();
     const remarks = document.getElementById('f-remarks').value.trim();
     if(!text) return;
     const title = deriveEntryTitle(player, category, text);
@@ -1839,14 +2028,14 @@
     if(editingEntryId){
       const en = entries.find(x => x.id === editingEntryId);
       if(en){
-        Object.assign(en, { title, category, team, color, player, text, remarks });
+        Object.assign(en, { title, category, team, color, player, text, season, remarks });
       }
       editingEntryId = null;
       setEditUI('entry-submit-btn', 'entry-cancel-btn', false, 'Eintrag speichern', 'Eintrag aktualisieren');
     }else{
       entries.unshift({
         id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-        title, category, team, color, player, text, remarks, createdAt: Date.now()
+        title, category, team, color, player, text, season, remarks, createdAt: Date.now()
       });
     }
 
@@ -1879,6 +2068,7 @@
     document.getElementById('f-color').value = en.color || '';
     fColorPicker.refresh();
     document.getElementById('f-text').value = en.text;
+    document.getElementById('f-season').value = en.season || '';
     document.getElementById('f-remarks').value = en.remarks || '';
     editingEntryId = id;
     setEditUI('entry-submit-btn', 'entry-cancel-btn', true, 'Eintrag speichern', 'Eintrag aktualisieren');
@@ -1898,7 +2088,7 @@
     document.getElementById('count-badge').textContent = entries.length;
     const q = document.getElementById('entry-search').value.trim().toLowerCase();
     const filtered = q ? entries.filter(en => {
-      const hay = [en.title, en.category, en.team, en.player, en.text, en.remarks].filter(Boolean).join(' ').toLowerCase();
+      const hay = [en.title, en.category, en.team, en.player, en.text, en.season, en.remarks].filter(Boolean).join(' ').toLowerCase();
       return hay.includes(q);
     }) : entries;
 
@@ -1923,10 +2113,89 @@
         ${en.team ? `<span class="team-label">${escapeHtml(en.team)}</span>` : ''}
         ${en.player ? `<span class="stat-meta"> · ${escapeHtml(en.player)}</span>` : ''}
         <div class="card-text">${escapeHtml(en.text)}</div>
+        ${en.season ? `<span class="stat-meta">${escapeHtml(en.season)}</span>` : ''}
         ${en.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(en.remarks)}</div>` : ''}
       </div>
     `).join('');
   }
+
+  /* ---------- Saison-Schnellauswahl (Doppelklick) ---------- */
+  function seasonStartYear(offset){
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const base = month >= 7 ? now.getFullYear() : now.getFullYear() - 1;
+    return base + offset;
+  }
+
+  function seasonLabel(offset){
+    const start = seasonStartYear(offset);
+    const endYY = String((start + 1) % 100).padStart(2, '0');
+    return `${start}/${endYY}`;
+  }
+
+  function closeSeasonPicker(){
+    const existing = document.getElementById('season-picker-popup');
+    if(existing) existing.remove();
+    document.removeEventListener('click', onSeasonPickerOutsideClick, true);
+    document.removeEventListener('keydown', onSeasonPickerKeydown, true);
+  }
+
+  function onSeasonPickerOutsideClick(e){
+    const popup = document.getElementById('season-picker-popup');
+    if(popup && !popup.contains(e.target)) closeSeasonPicker();
+  }
+
+  function onSeasonPickerKeydown(e){
+    if(e.key === 'Escape') closeSeasonPicker();
+  }
+
+  function openSeasonPicker(input){
+    closeSeasonPicker();
+    const rect = input.getBoundingClientRect();
+    const popup = document.createElement('div');
+    popup.id = 'season-picker-popup';
+    popup.className = 'season-picker-popup';
+
+    const options = [
+      { label: `Letzte Saison (${seasonLabel(-1)})`, value: seasonLabel(-1) },
+      { label: seasonLabel(0), value: seasonLabel(0) }
+    ];
+    options.forEach(opt=>{
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'season-picker-option';
+      btn.textContent = opt.label;
+      btn.addEventListener('click', ()=>{
+        input.value = opt.value;
+        input.dispatchEvent(new Event('input'));
+        closeSeasonPicker();
+      });
+      popup.appendChild(btn);
+    });
+
+    document.body.appendChild(popup);
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - popup.offsetWidth - 8));
+    popup.style.top = `${rect.bottom + 4}px`;
+    popup.style.left = `${left}px`;
+
+    setTimeout(()=>{
+      document.addEventListener('click', onSeasonPickerOutsideClick, true);
+      document.addEventListener('keydown', onSeasonPickerKeydown, true);
+    }, 0);
+  }
+
+  function attachSeasonPicker(inputId){
+    const input = document.getElementById(inputId);
+    if(!input) return;
+    input.addEventListener('dblclick', (e)=>{
+      e.preventDefault();
+      openSeasonPicker(input);
+    });
+  }
+
+  attachSeasonPicker('s-season');
+  attachSeasonPicker('f-season');
+  attachSeasonPicker('p-season');
 
   /* ---------- Stats ---------- */
   document.getElementById('stat-form').addEventListener('submit', async (e)=>{
@@ -2035,6 +2304,91 @@
     `).join('');
   }
 
+  /* ---------- Schnellerfassung: Letztes Spiel (Stats für den ganzen Kader auf einmal) ---------- */
+  /* Wahl: Wert aus dem letzten Spiel oder aus der laufenden Saison. Der Wert landet im Feld "Saison / Datum". */
+  const LAST_GAME_LABEL = 'Letztes Spiel';
+  let qsMode = 'game';
+  function qsLabel(){ return qsMode === 'season' ? seasonLabel(0) : LAST_GAME_LABEL; }
+  document.getElementById('qs-mode-season').textContent = 'Diese Saison (' + seasonLabel(0) + ')';
+  ['qs-mode-game', 'qs-mode-season'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => {
+      qsMode = document.getElementById(id).dataset.mode;
+      document.getElementById('qs-mode-game').classList.toggle('active', qsMode === 'game');
+      document.getElementById('qs-mode-season').classList.toggle('active', qsMode === 'season');
+      renderQuickStatRoster();
+    });
+  });
+
+  function renderQuickStatRoster(){
+    const box = document.getElementById('qs-player-list');
+    if(!box) return;
+    const team = document.getElementById('qs-team').value;
+    const statType = document.getElementById('qs-type').value.trim();
+
+    if(!team){
+      box.innerHTML = '<div class="empty">Team wählen, um den Kader zu laden.</div>';
+      return;
+    }
+    const roster = players.filter(p => p.team === team && !p.role).sort(comparePlayersForList);
+    if(roster.length === 0){
+      box.innerHTML = '<div class="empty">Noch keine Spieler für dieses Team — im Reiter „Spieler" anlegen.</div>';
+      return;
+    }
+    box.innerHTML = roster.map(p => {
+      const existing = statType ? stats.find(s => s.name === p.name && s.team === team && s.statType === statType && s.season === qsLabel()) : null;
+      return `
+        <div class="qs-row">
+          <span class="qs-player-name">${p.number ? '#'+escapeHtml(p.number)+' ' : ''}${escapeHtml(p.name)}</span>
+          <input type="text" inputmode="decimal" class="qs-value-input" data-id="${p.id}" value="${existing ? escapeHtml(existing.value) : ''}" placeholder="–">
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('qs-team').addEventListener('change', renderQuickStatRoster);
+  document.getElementById('qs-type').addEventListener('change', renderQuickStatRoster);
+
+  document.getElementById('qs-save-btn').addEventListener('click', async ()=>{
+    const team = document.getElementById('qs-team').value;
+    const statType = document.getElementById('qs-type').value.trim();
+    if(!team || !statType) return;
+
+    let changed = false;
+    document.querySelectorAll('#qs-player-list .qs-value-input').forEach(input=>{
+      const player = players.find(p => p.id === input.dataset.id);
+      if(!player) return;
+      const value = input.value.trim();
+      const existingIdx = stats.findIndex(s => s.name === player.name && s.team === team && s.statType === statType && s.season === qsLabel());
+      if(value){
+        if(existingIdx > -1){
+          stats[existingIdx].value = value;
+        }else{
+          stats.push({
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+            name: player.name, team, statType, value, season: qsLabel(), remarks: '', color: '', createdAt: Date.now()
+          });
+        }
+        changed = true;
+      }else if(existingIdx > -1){
+        stats.splice(existingIdx, 1);
+        changed = true;
+      }
+    });
+
+    if(changed){
+      await persistStats();
+      renderStatsList();
+      if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+    }
+    document.querySelectorAll('#qs-player-list .qs-value-input').forEach(input=>{ input.value = ''; });
+
+    const status = document.getElementById('qs-status');
+    status.textContent = 'Gespeichert ✓';
+    status.style.opacity = '1';
+    clearTimeout(window.__qsStatusTimer);
+    window.__qsStatusTimer = setTimeout(()=>{ status.style.opacity = '0'; }, 2000);
+  });
+
   /* ---------- Penalties (Strafen) ---------- */
   document.getElementById('penalty-form').addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -2044,20 +2398,21 @@
     const gelb = parseInt(document.getElementById('p-gelb').value, 10) || 0;
     const zweimin = parseInt(document.getElementById('p-zweimin').value, 10) || 0;
     const rot = parseInt(document.getElementById('p-rot').value, 10) || 0;
+    const season = document.getElementById('p-season').value.trim();
     const remarks = document.getElementById('p-remarks').value.trim();
     if(!name) return;
 
     if(editingPenaltyId){
       const p = penalties.find(x => x.id === editingPenaltyId);
       if(p){
-        Object.assign(p, { name, team, color, gelb, zweimin, rot, remarks });
+        Object.assign(p, { name, team, color, gelb, zweimin, rot, season, remarks });
       }
       editingPenaltyId = null;
       setEditUI('penalty-submit-btn', 'penalty-cancel-btn', false, 'Strafe speichern', 'Strafe aktualisieren');
     }else{
       penalties.unshift({
         id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-        name, team, color, gelb, zweimin, rot, remarks, createdAt: Date.now()
+        name, team, color, gelb, zweimin, rot, season, remarks, createdAt: Date.now()
       });
     }
 
@@ -2069,6 +2424,7 @@
     renderPenaltyList();
     renderChips();
     renderResults();
+    renderQuickPenaltyRoster();
   });
 
   document.getElementById('penalty-cancel-btn').addEventListener('click', ()=>{
@@ -2091,6 +2447,7 @@
     document.getElementById('p-gelb').value = p.gelb || 0;
     document.getElementById('p-zweimin').value = p.zweimin || 0;
     document.getElementById('p-rot').value = p.rot || 0;
+    document.getElementById('p-season').value = p.season || '';
     document.getElementById('p-remarks').value = p.remarks || '';
     editingPenaltyId = id;
     setEditUI('penalty-submit-btn', 'penalty-cancel-btn', true, 'Strafe speichern', 'Strafe aktualisieren');
@@ -2103,6 +2460,7 @@
     renderPenaltyList();
     renderChips();
     renderResults();
+    renderQuickPenaltyRoster();
   }
 
   function renderPenaltyList(){
@@ -2110,7 +2468,7 @@
     document.getElementById('penalty-count-badge').textContent = penalties.length;
     const q = document.getElementById('penalty-search').value.trim().toLowerCase();
     const filtered = q ? penalties.filter(p => {
-      const hay = [p.name, p.team, p.remarks, String(p.gelb), String(p.zweimin), String(p.rot)].filter(Boolean).join(' ').toLowerCase();
+      const hay = [p.name, p.team, p.season, p.remarks, String(p.gelb), String(p.zweimin), String(p.rot)].filter(Boolean).join(' ').toLowerCase();
       return hay.includes(q);
     }) : penalties;
 
@@ -2137,6 +2495,7 @@
           <div class="penalty-chip"><span class="p-label">2 Min</span><span class="p-value">${p.zweimin}</span></div>
           <div class="penalty-chip"><span class="p-label">Rot</span><span class="p-value">${p.rot}</span></div>
         </div>
+        ${p.season ? `<span class="stat-meta">${escapeHtml(p.season)}</span>` : ''}
         ${p.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(p.remarks)}</div>` : ''}
       </div>
     `).join('');
@@ -2201,6 +2560,8 @@
     await persistPlayers();
     renderPlayerList();
     populatePlayerSelect();
+    renderQuickStatRoster();
+    renderQuickPenaltyRoster();
     if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
   });
 
@@ -2245,6 +2606,8 @@
     await persistPlayers();
     renderPlayerList();
     populatePlayerSelect();
+    renderQuickStatRoster();
+    renderQuickPenaltyRoster();
     if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
   }
 
@@ -2282,6 +2645,93 @@
     `).join('');
   }
 
+  /* ---------- Schnellerfassung Strafen (Kader auf einmal, letztes Spiel oder Saison) ---------- */
+  let qpMode = 'game';
+  function qpLabel(){ return qpMode === 'season' ? seasonLabel(0) : LAST_GAME_LABEL; }
+  document.getElementById('qp-mode-season').textContent = 'Diese Saison (' + seasonLabel(0) + ')';
+  ['qp-mode-game', 'qp-mode-season'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => {
+      qpMode = document.getElementById(id).dataset.mode;
+      document.getElementById('qp-mode-game').classList.toggle('active', qpMode === 'game');
+      document.getElementById('qp-mode-season').classList.toggle('active', qpMode === 'season');
+      renderQuickPenaltyRoster();
+    });
+  });
+
+  function renderQuickPenaltyRoster(){
+    const box = document.getElementById('qp-player-list');
+    if(!box) return;
+    const team = document.getElementById('qp-team').value;
+    if(!team){
+      box.innerHTML = '<div class="empty">Team wählen, um den Kader zu laden.</div>';
+      return;
+    }
+    const roster = players.filter(p => p.team === team && !p.role).sort(comparePlayersForList);
+    if(roster.length === 0){
+      box.innerHTML = '<div class="empty">Noch keine Spieler für dieses Team — im Reiter „Spieler" anlegen.</div>';
+      return;
+    }
+    const label = qpLabel();
+    box.innerHTML = roster.map(p => {
+      const ex = penalties.find(x => x.name === p.name && x.team === team && x.season === label);
+      const v = k => (ex && ex[k]) ? ex[k] : '';
+      return `
+        <div class="qs-row" data-id="${p.id}">
+          <span class="qs-player-name">${p.number ? '#'+escapeHtml(p.number)+' ' : ''}${escapeHtml(p.name)}</span>
+          <span class="qp-inputs">
+            <input type="text" inputmode="numeric" data-k="gelb" value="${v('gelb')}" placeholder="–" aria-label="Gelb">
+            <input type="text" inputmode="numeric" data-k="zweimin" value="${v('zweimin')}" placeholder="–" aria-label="2 Minuten">
+            <input type="text" inputmode="numeric" data-k="rot" value="${v('rot')}" placeholder="–" aria-label="Rot">
+          </span>
+        </div>`;
+    }).join('');
+  }
+  document.getElementById('qp-team').addEventListener('change', renderQuickPenaltyRoster);
+
+  document.getElementById('qp-save-btn').addEventListener('click', async ()=>{
+    const team = document.getElementById('qp-team').value;
+    if(!team) return;
+    const label = qpLabel();
+    let changed = false;
+
+    document.querySelectorAll('#qp-player-list .qs-row').forEach(row=>{
+      const player = players.find(p => p.id === row.dataset.id);
+      if(!player) return;
+      const val = k => parseInt(row.querySelector(`input[data-k="${k}"]`).value, 10) || 0;
+      const gelb = val('gelb'), zweimin = val('zweimin'), rot = val('rot');
+      const idx = penalties.findIndex(x => x.name === player.name && x.team === team && x.season === label);
+      if(gelb || zweimin || rot){
+        if(idx > -1){
+          Object.assign(penalties[idx], { gelb, zweimin, rot });
+        }else{
+          penalties.unshift({
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+            name: player.name, team, color: '', gelb, zweimin, rot, season: label, remarks: '', createdAt: Date.now()
+          });
+        }
+        changed = true;
+      }else if(idx > -1){
+        penalties.splice(idx, 1);
+        changed = true;
+      }
+    });
+
+    if(changed){
+      await persistPenalties();
+      renderPenaltyList();
+      renderChips();
+      renderResults();
+      if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+    }
+    document.querySelectorAll('#qp-player-list input').forEach(i => { i.value = ''; });
+
+    const status = document.getElementById('qp-status');
+    status.textContent = 'Gespeichert ✓';
+    status.style.opacity = '1';
+    clearTimeout(window.__qpStatusTimer);
+    window.__qpStatusTimer = setTimeout(()=>{ status.style.opacity = '0'; }, 2000);
+  });
+
   /* ---------- Dashboard ---------- */
   function renderDashboard(){
     const homeList = document.getElementById('dashboard-home-list');
@@ -2299,8 +2749,66 @@
       card.addEventListener('click', ()=> showPlayerDetail(card.dataset.id));
     });
 
+    renderDashboardTeamEntries('home', teams.home, 'dashboard-home-team-entries');
+    renderDashboardTeamEntries('away', teams.away, 'dashboard-away-team-entries');
+
     renderDashboardPhotos();
     renderDashboardAnalysis();
+    renderH2HDashboard();
+  }
+
+  function entryRelatedItemHtml(en, isHidden){
+    const actionBtn = isHidden
+      ? `<button type="button" class="related-hide-btn" title="Eintrag wieder einblenden" onclick="event.stopPropagation(); toggleEntryHidden('${en.id}', false)">↺</button>`
+      : `<button type="button" class="related-hide-btn" title="Eintrag ausblenden" onclick="event.stopPropagation(); toggleEntryHidden('${en.id}', true)">✕</button>`;
+    return `
+      <div class="related-item${isHidden ? ' is-hidden' : ''}"${en.color ? ` style="--tag-color:${tagColorHex(en.color)}"` : ''} onclick="showRelatedDetail('entry','${en.id}')">
+        ${actionBtn}
+        <span class="related-cat">${escapeHtml(en.category)}</span>
+        <div class="related-body">${escapeHtml(en.text)}</div>
+        ${en.remarks ? `<div class="related-remarks">${escapeHtml(en.remarks)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function hiddenEntriesToggleHtml(hiddenEntries, renderFn){
+    if(!hiddenEntries.length) return '';
+    const count = hiddenEntries.length;
+    const render = renderFn || entryRelatedItemHtml;
+    return `
+      <details class="hidden-entries-toggle">
+        <summary>${count} ausgeblendete${count === 1 ? 'r Eintrag' : ' Einträge'} anzeigen</summary>
+        <div class="hidden-entries-list">${hiddenEntries.map(en => render(en, true)).join('')}</div>
+      </details>
+    `;
+  }
+
+  function toggleEntryHidden(id, hidden){
+    const en = entries.find(x => x.id === id);
+    if(!en) return;
+    en.hidden = hidden;
+    persist();
+    renderInputList();
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+    if(currentPlayerDetailId && !document.getElementById('player-detail-overlay').classList.contains('hidden')){
+      showPlayerDetail(currentPlayerDetailId);
+    }
+  }
+
+  function renderDashboardTeamEntries(side, teamName, containerId){
+    const box = document.getElementById(containerId);
+    if(!box) return;
+    const teamEntries = entries.filter(en => en.team === teamName && !en.player);
+    const visibleEntries = teamEntries.filter(en => !en.hidden);
+    const hiddenEntries = teamEntries.filter(en => en.hidden);
+    if(teamEntries.length === 0){
+      box.innerHTML = '<div class="empty">Noch keine Team-Einträge ohne Spielerbezug.</div>';
+      return;
+    }
+    const visibleHtml = visibleEntries.length
+      ? visibleEntries.map(en => entryRelatedItemHtml(en, false)).join('')
+      : '<div class="empty">Alle Team-Einträge sind ausgeblendet.</div>';
+    box.innerHTML = visibleHtml + hiddenEntriesToggleHtml(hiddenEntries);
   }
 
   function renderDashboardPhotos(){
@@ -2329,7 +2837,7 @@
     document.getElementById('lightbox-img').src = '';
   });
 
-  const DASH_VIEWS = ['teams', 'officials', 'photos', 'analysis', 'form'];
+  const DASH_VIEWS = ['teams', 'officials', 'photos', 'analysis', 'form', 'h2h'];
   DASH_VIEWS.forEach(view=>{
     document.getElementById(`dash-view-${view}-btn`).addEventListener('click', ()=>{
       DASH_VIEWS.forEach(v=>{
@@ -2356,12 +2864,15 @@
   function showPlayerDetail(id){
     const p = players.find(pl => pl.id === id);
     if(!p) return;
+    currentPlayerDetailId = id;
 
     const related = [
-      ...entries.filter(en => en.player === p.name).map(en => ({ kind:'entry', id:en.id, cat: en.category, body: en.text, color: en.color })),
-      ...stats.filter(s => s.name === p.name).map(s => ({ kind:'stat', id:s.id, cat: 'Statistik', body: `${s.statType}: ${s.value}${s.season ? ' ('+s.season+')' : ''}`, color: s.color })),
-      ...penalties.filter(pe => pe.name === p.name).map(pe => ({ kind:'penalty', id:pe.id, cat: 'Strafe', body: `Gelb: ${pe.gelb} · 2 Min: ${pe.zweimin} · Rot: ${pe.rot}`, color: pe.color }))
+      ...entries.filter(en => en.player === p.name).map(en => ({ kind:'entry', id:en.id, cat: en.category, body: en.text, color: en.color, remarks: en.remarks, hidden: !!en.hidden })),
+      ...stats.filter(s => s.name === p.name).map(s => ({ kind:'stat', id:s.id, cat: 'Statistik', body: `${s.statType}: ${s.value}${s.season ? ' ('+s.season+')' : ''}`, color: s.color, remarks: s.remarks, hidden: !!s.hidden })),
+      ...penalties.filter(pe => pe.name === p.name).map(pe => ({ kind:'penalty', id:pe.id, cat: 'Strafe', body: `Gelb: ${pe.gelb} · 2 Min: ${pe.zweimin} · Rot: ${pe.rot}`, color: pe.color, remarks: pe.remarks, hidden: !!pe.hidden }))
     ];
+    const visibleRelated = related.filter(r => !r.hidden);
+    const hiddenRelated = related.filter(r => r.hidden);
 
     const badge = p.role ? (ROLE_ABBR[p.role] || p.role.slice(0,2).toUpperCase()) : (p.number ? escapeHtml(p.number) : '–');
     const html = `
@@ -2393,7 +2904,8 @@
       ` : ''}
       ${related.length ? `
         <div class="player-detail-related">
-          ${related.map(r => `<button type="button" class="related-item"${r.color ? ` style="--tag-color:${tagColorHex(r.color)}"` : ''} onclick="showRelatedDetail('${r.kind}','${r.id}')"><span class="related-cat">${escapeHtml(r.cat)}</span><div class="related-body">${escapeHtml(r.body)}</div></button>`).join('')}
+          ${visibleRelated.length ? visibleRelated.map(r => relatedDetailItemHtml(r, false)).join('') : '<div class="player-detail-empty" style="grid-column:1 / -1;">Alle Einträge sind ausgeblendet.</div>'}
+          ${hiddenEntriesToggleHtml(hiddenRelated, relatedDetailItemHtml)}
         </div>
       ` : `<div class="player-detail-empty">Noch keine Einträge, Statistiken oder Strafen für diesen Spieler.</div>`}
     `;
@@ -2401,8 +2913,43 @@
     document.getElementById('player-detail-overlay').classList.remove('hidden');
   }
 
+  function relatedDetailItemHtml(r, isHidden){
+    const hideBtn = isHidden
+      ? `<button type="button" class="related-hide-btn" title="Wieder einblenden" onclick="event.stopPropagation(); toggleRelatedHidden('${r.kind}','${r.id}', false)">↺</button>`
+      : `<button type="button" class="related-hide-btn" title="Ausblenden" onclick="event.stopPropagation(); toggleRelatedHidden('${r.kind}','${r.id}', true)">✕</button>`;
+    return `
+      <div class="related-item${isHidden ? ' is-hidden' : ''}"${r.color ? ` style="--tag-color:${tagColorHex(r.color)}"` : ''} onclick="showRelatedDetail('${r.kind}','${r.id}')">
+        ${hideBtn}
+        <span class="related-cat">${escapeHtml(r.cat)}</span>
+        <div class="related-body">${escapeHtml(r.body)}</div>
+        ${r.remarks ? `<div class="related-remarks">${escapeHtml(r.remarks)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function toggleRelatedHidden(kind, id, hidden){
+    if(kind === 'entry'){
+      toggleEntryHidden(id, hidden);
+      return;
+    }
+    let item = null;
+    if(kind === 'stat'){
+      item = stats.find(x => x.id === id);
+      if(item){ item.hidden = hidden; persistStats(); }
+    }else if(kind === 'penalty'){
+      item = penalties.find(x => x.id === id);
+      if(item){ item.hidden = hidden; persistPenalties(); }
+    }
+    if(!item) return;
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+    if(currentPlayerDetailId && !document.getElementById('player-detail-overlay').classList.contains('hidden')){
+      showPlayerDetail(currentPlayerDetailId);
+    }
+  }
+
   document.getElementById('player-detail-close').addEventListener('click', ()=>{
     document.getElementById('player-detail-overlay').classList.add('hidden');
+    currentPlayerDetailId = null;
   });
 
   function showRelatedDetail(kind, id){
@@ -2835,6 +3382,7 @@
   }
 
   function renderH2HList(){
+    renderH2HDashboard();
     const list = document.getElementById('h2h-list');
     const countBadge = document.getElementById('h2h-count-badge');
     const summaryBox = document.getElementById('h2h-summary');
@@ -2880,6 +3428,78 @@
         </div>
       `;
     }).join('');
+  }
+
+  function h2hDashboardCardHtml(entry, isHidden){
+    const parsed = parseScore(entry.score);
+    const homeWon = parsed && parsed.a > parsed.b;
+    const awayWon = parsed && parsed.b > parsed.a;
+    const color = h2hCardColor(entry);
+    const dateLabel = formatH2HDate(entry.date);
+    const actionBtn = isHidden
+      ? `<button type="button" class="related-hide-btn" title="Duell wieder einblenden" onclick="toggleH2HHidden('${entry.id}', false)">↺</button>`
+      : `<button type="button" class="related-hide-btn" title="Duell ausblenden" onclick="toggleH2HHidden('${entry.id}', true)">✕</button>`;
+    return `
+      <div class="card${isHidden ? ' is-hidden' : ''}"${color ? ` style="--tag-color:${color}"` : ''}>
+        ${actionBtn}
+        <div class="card-top">
+          <span class="card-title">${dateLabel ? escapeHtml(dateLabel) : 'Ohne Datum'}${entry.competition ? ' · ' + escapeHtml(entry.competition) : ''}</span>
+        </div>
+        <div class="h2h-score-row">
+          <span class="h2h-team${homeWon ? ' h2h-winner' : ''}">${escapeHtml(entry.homeTeam || '–')}</span>
+          <span class="h2h-score">${escapeHtml(entry.score || '–')}</span>
+          <span class="h2h-team${awayWon ? ' h2h-winner' : ''}">${escapeHtml(entry.awayTeam || '–')}</span>
+        </div>
+        ${entry.remarks ? `<div class="remarks-line">Bemerkung: ${escapeHtml(entry.remarks)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function h2hHiddenToggleHtml(hiddenEntries){
+    if(!hiddenEntries.length) return '';
+    const count = hiddenEntries.length;
+    return `
+      <details class="hidden-entries-toggle">
+        <summary>${count} ausgeblendete${count === 1 ? 's Duell' : ' Duelle'} anzeigen</summary>
+        <div class="hidden-entries-list">${hiddenEntries.map(entry => h2hDashboardCardHtml(entry, true)).join('')}</div>
+      </details>
+    `;
+  }
+
+  function toggleH2HHidden(id, hidden){
+    const entry = h2h.find(x => x.id === id);
+    if(!entry) return;
+    entry.hidden = hidden;
+    persistH2H();
+    renderH2HDashboard();
+  }
+
+  function renderH2HDashboard(){
+    const summaryBox = document.getElementById('dashboard-h2h-summary');
+    const listBox = document.getElementById('dashboard-h2h-list');
+    if(!summaryBox || !listBox) return;
+
+    if(h2h.length === 0){
+      summaryBox.innerHTML = '';
+      listBox.innerHTML = '<div class="empty">Noch keine vergangenen Duelle erfasst.</div>';
+      return;
+    }
+
+    const sum = h2hSummary();
+    summaryBox.innerHTML = `
+      <div class="h2h-summary-chip"><span class="n">${sum.homeWins}</span><span class="l">${escapeHtml(teams.home || 'Heim')} Siege</span></div>
+      <div class="h2h-summary-chip"><span class="n">${sum.draws}</span><span class="l">Unentschieden</span></div>
+      <div class="h2h-summary-chip"><span class="n">${sum.awayWins}</span><span class="l">${escapeHtml(teams.away || 'Gast')} Siege</span></div>
+    `;
+
+    const sorted = [...h2h].sort((a,b)=> h2hSortKey(b.date).localeCompare(h2hSortKey(a.date)));
+    const visible = sorted.filter(entry => !entry.hidden);
+    const hidden = sorted.filter(entry => entry.hidden);
+
+    const visibleHtml = visible.length
+      ? visible.map(entry => h2hDashboardCardHtml(entry, false)).join('')
+      : '<div class="empty">Alle Duelle sind ausgeblendet.</div>';
+    listBox.innerHTML = visibleHtml + h2hHiddenToggleHtml(hidden);
   }
 
   function renderAnalysisForm(){
@@ -3119,7 +3739,7 @@
   function getCombinedRecords(){
     const factRecords = entries.map(en => ({
       id: en.id, title: en.title, category: en.category, color: en.color || null,
-      body: en.text, meta: en.team || null, remarks: en.remarks || null
+      body: en.text, meta: [en.team, en.season].filter(Boolean).join(' · ') || null, remarks: en.remarks || null
     }));
     const statRecords = stats.map(s => ({
       id: s.id, title: s.name, category: 'Statistik', color: s.color || null,
@@ -3127,7 +3747,7 @@
     }));
     const penaltyRecords = penalties.map(p => ({
       id: p.id, title: p.name, category: 'Strafe', color: p.color || null,
-      body: `Gelb: ${p.gelb} · 2 Min: ${p.zweimin} · Rot: ${p.rot}`, meta: p.team || null, remarks: p.remarks || null
+      body: `Gelb: ${p.gelb} · 2 Min: ${p.zweimin} · Rot: ${p.rot}`, meta: [p.team, p.season].filter(Boolean).join(' · ') || null, remarks: p.remarks || null
     }));
     const h2hRecords = h2h.map(entry => ({
       id: entry.id, title: `${entry.homeTeam || '–'} ${entry.score || ''} ${entry.awayTeam || '–'}`.trim(),
@@ -3336,8 +3956,8 @@
     if(rows.length === 0) return '<div class="empty-hint">Keine Strafen erfasst.</div>';
     return `
       <table class="data">
-        <thead><tr><th>Name</th><th>Gelb</th><th>2 Minuten</th><th>Rot</th></tr></thead>
-        <tbody>${rows.map(p => `<tr><td class="name">${escapeHtml(p.name)}</td><td class="num-cell">${p.gelb}</td><td class="num-cell">${p.zweimin}</td><td class="num-cell">${p.rot}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>Name</th><th>Gelb</th><th>2 Minuten</th><th>Rot</th><th>Saison</th></tr></thead>
+        <tbody>${rows.map(p => `<tr><td class="name">${escapeHtml(p.name)}</td><td class="num-cell">${p.gelb}</td><td class="num-cell">${p.zweimin}</td><td class="num-cell">${p.rot}</td><td>${pd(p.season)}</td></tr>`).join('')}</tbody>
       </table>
     `;
   }
@@ -3349,7 +3969,7 @@
       <div class="facts-list">
         ${rows.map(en => `
           <div class="fact-item">
-            <span class="fact-tag">${escapeHtml(en.category)}</span>
+            <span class="fact-tag">${escapeHtml(en.category)}${en.season ? ' · ' + escapeHtml(en.season) : ''}</span>
             <span class="fact-body">${en.player ? `<b>${escapeHtml(en.player)}</b> — ` : ''}${escapeHtml(en.text)}</span>
           </div>
         `).join('')}
@@ -3487,6 +4107,8 @@ ${pagesHtml}
       renderH2HList();
       renderChips();
       renderResults();
+      renderQuickStatRoster();
+      renderQuickPenaltyRoster();
 
       if(teams.home && teams.away){ showApp(); } else { showSetup(false); }
 
@@ -3495,6 +4117,542 @@ ${pagesHtml}
       showToast('Die Datei konnte nicht gelesen werden. Bitte stelle sicher, dass es eine gültige Export-Datei aus dieser Kartei ist.', true);
     }
     e.target.value = '';
+  });
+
+  /* ---------- Spieler-Import (Zusammenführen, ohne Überschreiben der Kartei) ---------- */
+  const PIMP_FORMAT = 'kartei-spieler';
+  const PIMP_ROLES = ['Trainer','Co-Trainer','Torwart-Trainer','Physio','Teambetreuer','Schiri 1','Schiri 2','Zeitnehmer','Sekretär'];
+  const PIMP_STATUS = ['Fit','Fraglich','Verletzt','Gesperrt'];
+  const PIMP_PROFILE_FIELDS = ['height','contract','position','nationality','lastClub','transferDate','birthDate'];
+  const PIMP_LABELS = {
+    slot:'Nummer/Rolle', age:'Alter', height:'Größe', contract:'Vertrag bis', position:'Position',
+    nationality:'Nationalität', lastClub:'Letzter Verein', transferDate:'Wechseldatum', birthDate:'Geburtstag',
+    status:'Status', statusNote:'Status-Notiz', milestoneCurrent:'Meilenstein-Stand', milestoneTarget:'Ziel-Meilenstein'
+  };
+  let pimp = { records:[], errors:[], warnings:[], mapping:{}, fileName:'' };
+
+  function pimpNorm(s){
+    return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()
+      .replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim();
+  }
+
+  function pimpParseDate(s){
+    s = String(s || '').trim();
+    let m, d, mo, y;
+    if((m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))){ d = +m[1]; mo = +m[2]; y = +m[3]; }
+    else if((m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/))){ y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else return null;
+    const dt = new Date(y, mo - 1, d);
+    if(dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+    return { display: String(d).padStart(2,'0') + '.' + String(mo).padStart(2,'0') + '.' + y, date: dt };
+  }
+
+  function pimpAgeFrom(dt){
+    const now = new Date();
+    let a = now.getFullYear() - dt.getFullYear();
+    const m = now.getMonth() - dt.getMonth();
+    if(m < 0 || (m === 0 && now.getDate() < dt.getDate())) a--;
+    return a;
+  }
+
+  function pimpNormalizeRecord(raw, idx){
+    if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return { error:'Eintrag ist kein Objekt', idx };
+    const str = k => raw[k] == null ? '' : String(raw[k]).trim();
+    const name = str('name');
+    const team = str('team');
+    if(!name || !team) return { error:'Name oder Team fehlt', idx, name };
+    const warn = [];
+
+    let role = str('role');
+    if(role){
+      const hit = PIMP_ROLES.find(r => pimpNorm(r) === pimpNorm(role));
+      if(!hit) return { error:'Unbekannte Rolle „' + role + '"', idx, name };
+      role = hit;
+    }
+    let number = str('number').replace(/^#/, '');
+    if(role) number = '';
+    else if(number && !/^\d{1,3}$/.test(number)){ warn.push('Nummer „' + number + '" ungültig – ignoriert'); number = ''; }
+
+    let status = str('status');
+    if(status){
+      const hit = PIMP_STATUS.find(s => pimpNorm(s) === pimpNorm(status));
+      if(hit) status = hit; else { warn.push('Status „' + status + '" unbekannt – ignoriert'); status = ''; }
+    }
+
+    let birthDate = '';
+    let age = str('age');
+    const bd = str('birthDate');
+    if(bd){
+      const p = pimpParseDate(bd);
+      if(p){ birthDate = p.display; age = String(pimpAgeFrom(p.date)); }
+      else warn.push('Geburtstag „' + bd + '" nicht lesbar – ignoriert');
+    }
+    if(age && !/^\d{1,2}$/.test(age)){ warn.push('Alter „' + age + '" ungültig – ignoriert'); age = ''; }
+
+    let height = str('height').replace(/\s*cm$/i, '');
+    if(height && !/^\d{2,3}$/.test(height)){ warn.push('Größe „' + height + '" ungültig – ignoriert'); height = ''; }
+
+    let transferDate = str('transferDate');
+    if(transferDate){
+      const p = pimpParseDate(transferDate);
+      if(p) transferDate = p.display;
+    }
+
+    return {
+      rec: {
+        name, team, role, number, status, age, birthDate, height, transferDate,
+        contract: str('contract'), position: str('position'), nationality: str('nationality'), lastClub: str('lastClub'),
+        statusNote: str('statusNote'), milestoneCurrent: str('milestoneCurrent'), milestoneTarget: str('milestoneTarget')
+      },
+      warn
+    };
+  }
+
+  function pimpExtractList(data){
+    if(Array.isArray(data)) return data;
+    if(data && typeof data === 'object' && Array.isArray(data.players) &&
+       (data.exportFormat === PIMP_FORMAT || data.exportFormat === 'kommentatoren-kartei')) return data.players;
+    return null;
+  }
+
+  function pimpSuggestMapping(fileTeam){
+    const n = pimpNorm(fileTeam);
+    const matches = t => {
+      const tn = pimpNorm(t);
+      if(!tn || !n) return false;
+      return tn === n || (Math.min(tn.length, n.length) >= 4 && (tn.includes(n) || n.includes(tn)));
+    };
+    if(matches(teams.home)) return 'home';
+    if(matches(teams.away)) return 'away';
+    return 'keep';
+  }
+
+  function pimpOpen(fileName, list){
+    const records = [];
+    const errors = [];
+    const warnings = [];
+    const seen = new Set();
+    list.forEach((raw, i) => {
+      const r = pimpNormalizeRecord(raw, i);
+      if(r.error){ errors.push('Eintrag ' + (i + 1) + (r.name ? ' (' + r.name + ')' : '') + ': ' + r.error); return; }
+      const key = pimpNorm(r.rec.team) + '|' + pimpNorm(r.rec.name);
+      if(seen.has(key)){ warnings.push(r.rec.name + ' (' + r.rec.team + ') kommt in der Datei doppelt vor – zweiter Eintrag ignoriert'); return; }
+      seen.add(key);
+      r.warn.forEach(w => warnings.push(r.rec.name + ': ' + w));
+      records.push(r.rec);
+    });
+    if(records.length === 0){
+      showToast(errors.length ? 'Keine gültigen Spieler in der Datei gefunden.' : 'Die Datei enthält keine Spieler.', true);
+      return;
+    }
+    const mapping = {};
+    records.forEach(r => { if(!(r.team in mapping)) mapping[r.team] = pimpSuggestMapping(r.team); });
+    pimp = { records, errors, warnings, mapping, fileName };
+
+    const teamCounts = {};
+    records.forEach(r => { teamCounts[r.team] = (teamCounts[r.team] || 0) + 1; });
+    document.getElementById('pimp-file-info').textContent =
+      fileName + ' · ' + records.length + ' Spieler/Personen in ' + Object.keys(teamCounts).length + ' Team(s). Bestehende Daten bleiben erhalten; es wird nur ergänzt.';
+    document.getElementById('pimp-map').innerHTML = Object.keys(teamCounts).map(t => `
+      <div class="pimp-team">${escapeHtml(t)} <small>(${teamCounts[t]})</small></div>
+      <select data-pimp-team="${escapeHtml(t)}">
+        <option value="home">Heim: ${escapeHtml(teams.home)}</option>
+        <option value="away">Gast: ${escapeHtml(teams.away)}</option>
+        <option value="keep">Als eigenes Team „${escapeHtml(t)}" anlegen</option>
+        <option value="skip">Nicht importieren</option>
+      </select>`).join('');
+    document.querySelectorAll('#pimp-map select').forEach(sel => { sel.value = pimp.mapping[sel.getAttribute('data-pimp-team')]; });
+    document.getElementById('pimp-overwrite').checked = false;
+    pimpRenderResult();
+    document.getElementById('pimp-overlay').classList.remove('hidden');
+  }
+
+  function pimpCompute(){
+    const overwrite = document.getElementById('pimp-overwrite').checked;
+    const res = { added:[], updated:[], kept:[], unchanged:0, skipped:0 };
+    const index = new Map();
+    players.forEach(p => { index.set(pimpNorm(p.team) + '|' + pimpNorm(p.name), p); });
+    const emp = v => v == null || v === '';
+
+    pimp.records.forEach(rec => {
+      const m = pimp.mapping[rec.team] || 'keep';
+      if(m === 'skip'){ res.skipped++; return; }
+      const team = m === 'home' ? teams.home : (m === 'away' ? teams.away : rec.team);
+      const existing = index.get(pimpNorm(team) + '|' + pimpNorm(rec.name));
+
+      if(!existing){
+        const others = players.filter(p => pimpNorm(p.name) === pimpNorm(rec.name) && pimpNorm(p.team) !== pimpNorm(team)).map(p => p.team);
+        res.added.push({ rec, team, others });
+        return;
+      }
+
+      const patch = {};
+      const changes = [];
+      const kept = [];
+      const apply = (field, key, oldV, newV, patchObj) => { Object.assign(patch, patchObj); changes.push({ field, old:oldV, nw:newV }); };
+      const keep = (field, oldV, newV) => { kept.push({ field, old:oldV, nw:newV }); };
+
+      if(rec.role || rec.number){
+        const same = (existing.role || '') === rec.role && (existing.number || '') === rec.number;
+        if(!same){
+          const oldTxt = existing.role || (existing.number ? '#' + existing.number : '');
+          const newTxt = rec.role || ('#' + rec.number);
+          if(!(existing.role || existing.number) || overwrite) apply('slot', 'slot', oldTxt, newTxt, { role:rec.role, number:rec.number });
+          else keep('slot', oldTxt, newTxt);
+        }
+      }
+
+      PIMP_PROFILE_FIELDS.forEach(f => {
+        if(emp(rec[f])) return;
+        const cur = existing[f];
+        if(String(cur == null ? '' : cur) === rec[f]) return;
+        if(emp(cur) || overwrite) apply(f, f, cur || '', rec[f], { [f]: rec[f] });
+        else keep(f, cur, rec[f]);
+      });
+
+      if(rec.age && String(existing.age == null ? '' : existing.age) !== rec.age){
+        if(emp(existing.age) || overwrite || existing.birthDate || (rec.birthDate && patch.birthDate)) apply('age', 'age', existing.age || '', rec.age, { age: rec.age });
+        else keep('age', existing.age, rec.age);
+      }
+
+      if(rec.status && rec.status !== (existing.status || 'Fit')){
+        if(!existing.status || existing.status === 'Fit') apply('status', 'status', existing.status || 'Fit', rec.status, { status: rec.status });
+        else keep('status', existing.status, rec.status);
+      }
+      ['statusNote','milestoneCurrent','milestoneTarget'].forEach(f => {
+        if(emp(rec[f]) || String(existing[f] || '') === rec[f]) return;
+        if(emp(existing[f])) apply(f, f, '', rec[f], { [f]: rec[f] });
+        else keep(f, existing[f], rec[f]);
+      });
+
+      if(changes.length) res.updated.push({ existing, patch, changes });
+      else res.unchanged++;
+      if(kept.length) res.kept.push({ existing, kept });
+    });
+    return res;
+  }
+
+  function pimpFieldVal(field, v){
+    return v === '' || v == null ? '–' : escapeHtml(v);
+  }
+
+  function pimpRenderResult(){
+    const res = pimpCompute();
+    const chips = `
+      <div class="pimp-summary">
+        <span class="pimp-chip new"><b>${res.added.length}</b> neu</span>
+        <span class="pimp-chip upd"><b>${res.updated.length}</b> ergänzt/aktualisiert</span>
+        <span class="pimp-chip"><b>${res.unchanged}</b> unverändert</span>
+        ${res.skipped ? `<span class="pimp-chip"><b>${res.skipped}</b> übersprungen</span>` : ''}
+        ${pimp.errors.length ? `<span class="pimp-chip err"><b>${pimp.errors.length}</b> fehlerhaft</span>` : ''}
+      </div>`;
+
+    const addedHtml = res.added.length ? `
+      <details class="pimp-detail" ${res.added.length <= 12 ? 'open' : ''}><summary>Neue Spieler (${res.added.length})</summary><ul>
+        ${res.added.map(a => `<li><b>${escapeHtml(a.rec.role || (a.rec.number ? '#' + a.rec.number : ''))} ${escapeHtml(a.rec.name)}</b> · ${escapeHtml(a.team)}${a.rec.position ? ' · ' + escapeHtml(a.rec.position) : ''}${a.others.length ? ' · <i>gleicher Name auch bei: ' + escapeHtml(a.others.join(', ')) + '</i>' : ''}</li>`).join('')}
+      </ul></details>` : '';
+
+    const updatedHtml = res.updated.length ? `
+      <details class="pimp-detail" ${res.updated.length <= 8 ? 'open' : ''}><summary>Ergänzungen bei bestehenden Spielern (${res.updated.length})</summary><ul>
+        ${res.updated.map(u => `<li><b>${escapeHtml(u.existing.name)}</b> (${escapeHtml(u.existing.team)}): ${u.changes.map(c => `${PIMP_LABELS[c.field]} ${c.old ? `<span class="pimp-old">${pimpFieldVal(c.field, c.old)}</span> → ` : ''}${pimpFieldVal(c.field, c.nw)}`).join('; ')}</li>`).join('')}
+      </ul></details>` : '';
+
+    const keptHtml = res.kept.length ? `
+      <details class="pimp-detail"><summary>Abweichende Werte, die nicht übernommen werden (${res.kept.length} Spieler)</summary><ul>
+        ${res.kept.map(k => `<li><b>${escapeHtml(k.existing.name)}</b>: ${k.kept.map(c => `${PIMP_LABELS[c.field]}: gespeichert „${pimpFieldVal(c.field, c.old)}", Datei „${pimpFieldVal(c.field, c.nw)}"`).join('; ')}</li>`).join('')}
+      </ul></details>` : '';
+
+    const problems = pimp.errors.concat(pimp.warnings);
+    const problemsHtml = problems.length ? `
+      <details class="pimp-detail"><summary>Hinweise und Fehler (${problems.length})</summary><ul>
+        ${problems.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+      </ul></details>` : '';
+
+    document.getElementById('pimp-result').innerHTML = chips + addedHtml + updatedHtml + keptHtml + problemsHtml;
+    document.getElementById('pimp-ok').disabled = (res.added.length + res.updated.length) === 0;
+  }
+
+  function pimpClose(){
+    document.getElementById('pimp-overlay').classList.add('hidden');
+    pimp = { records:[], errors:[], warnings:[], mapping:{}, fileName:'' };
+  }
+
+  async function pimpApply(){
+    const res = pimpCompute();
+    res.updated.forEach(u => Object.assign(u.existing, u.patch));
+    res.added.forEach(a => {
+      const r = a.rec;
+      players.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+        name: r.name, team: a.team, number: r.number, role: r.role, age: r.age, birthDate: r.birthDate,
+        height: r.height, contract: r.contract, position: r.position, nationality: r.nationality,
+        lastClub: r.lastClub, transferDate: r.transferDate, status: r.status || 'Fit', statusNote: r.statusNote,
+        milestoneCurrent: r.milestoneCurrent, milestoneTarget: r.milestoneTarget, createdAt: Date.now()
+      });
+    });
+    await persistPlayers();
+    renderPlayerList();
+    populatePlayerSelect();
+    renderQuickStatRoster();
+    renderQuickPenaltyRoster();
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+    pimpClose();
+    showToast('Spieler-Import fertig: ' + res.added.length + ' neu, ' + res.updated.length + ' ergänzt.');
+  }
+
+  document.getElementById('player-import-input').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const data = JSON.parse(await file.text());
+      const list = pimpExtractList(data);
+      if(!list) throw new Error('invalid-format');
+      pimpOpen(file.name, list);
+    }catch(err){
+      showToast('Die Datei konnte nicht gelesen werden. Erwartet wird eine Spieler-Datei (Format „kartei-spieler") oder eine Kartei-Export-Datei.', true);
+    }
+    e.target.value = '';
+  });
+  document.getElementById('pimp-map').addEventListener('change', (e)=>{
+    const sel = e.target.closest('select[data-pimp-team]');
+    if(!sel) return;
+    pimp.mapping[sel.getAttribute('data-pimp-team')] = sel.value;
+    pimpRenderResult();
+  });
+  document.getElementById('pimp-overwrite').addEventListener('change', pimpRenderResult);
+  document.getElementById('pimp-cancel').addEventListener('click', pimpClose);
+  document.getElementById('pimp-ok').addEventListener('click', pimpApply);
+
+  document.getElementById('player-export-btn').addEventListener('click', ()=>{
+    const data = {
+      exportFormat: PIMP_FORMAT,
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      players: players.map(p => ({
+        name: p.name, team: p.team, number: p.number || '', role: p.role || '', age: p.age || '', birthDate: p.birthDate || '',
+        height: p.height || '', contract: p.contract || '', position: p.position || '', nationality: p.nationality || '',
+        lastClub: p.lastClub || '', transferDate: p.transferDate || '', status: p.status || 'Fit', statusNote: p.statusNote || '',
+        milestoneCurrent: p.milestoneCurrent || '', milestoneTarget: p.milestoneTarget || ''
+      }))
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kartei-spieler-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  /* ---------- Statistik-Import (Zusammenführen, ohne Überschreiben der Kartei) ---------- */
+  const SIMP_FORMAT = 'kartei-statistiken';
+  let simp = { records:[], errors:[], warnings:[], mapping:{}, fileName:'' };
+
+  function simpNormalizeRecord(raw, idx){
+    if(!raw || typeof raw !== 'object' || Array.isArray(raw)) return { error:'Eintrag ist kein Objekt', idx };
+    const str = k => raw[k] == null ? '' : String(raw[k]).trim();
+    const name = str('name');
+    const team = str('team');
+    const value = str('value');
+    if(!name || !team) return { error:'Name oder Team fehlt', idx, name };
+    if(!value) return { error:'Wert fehlt', idx, name };
+    return { rec: { name, team, statType: str('statType') || 'Wert', value, season: str('season'), remarks: str('remarks') } };
+  }
+
+  function simpExtractList(data){
+    if(Array.isArray(data)) return data;
+    if(data && typeof data === 'object' && Array.isArray(data.stats) &&
+       (data.exportFormat === SIMP_FORMAT || data.exportFormat === 'kommentatoren-kartei')) return data.stats;
+    return null;
+  }
+
+  function simpSeasonFor(rec){
+    const mode = document.getElementById('simp-season').value;
+    if(mode === 'game') return LAST_GAME_LABEL;
+    if(mode === 'season') return seasonLabel(0);
+    return rec.season;
+  }
+
+  function simpOpen(fileName, list){
+    const records = [], errors = [], warnings = [], seen = new Set();
+    list.forEach((raw, i) => {
+      const r = simpNormalizeRecord(raw, i);
+      if(r.error){ errors.push('Eintrag ' + (i + 1) + (r.name ? ' (' + r.name + ')' : '') + ': ' + r.error); return; }
+      const key = [r.rec.team, r.rec.name, r.rec.statType, r.rec.season].map(pimpNorm).join('|');
+      if(seen.has(key)){ warnings.push(r.rec.name + ' – ' + r.rec.statType + ' (' + r.rec.team + ') kommt in der Datei doppelt vor – zweiter Eintrag ignoriert'); return; }
+      seen.add(key);
+      records.push(r.rec);
+    });
+    if(records.length === 0){
+      showToast(errors.length ? 'Keine gültigen Statistiken in der Datei gefunden.' : 'Die Datei enthält keine Statistiken.', true);
+      return;
+    }
+    const mapping = {};
+    records.forEach(r => { if(!(r.team in mapping)) mapping[r.team] = pimpSuggestMapping(r.team); });
+    simp = { records, errors, warnings, mapping, fileName };
+
+    const teamCounts = {};
+    records.forEach(r => { teamCounts[r.team] = (teamCounts[r.team] || 0) + 1; });
+    document.getElementById('simp-file-info').textContent =
+      fileName + ' · ' + records.length + ' Statistiken in ' + Object.keys(teamCounts).length + ' Team(s). Bestehende Daten bleiben erhalten; es wird nur ergänzt.';
+    document.getElementById('simp-map').innerHTML = Object.keys(teamCounts).map(t => `
+      <div class="pimp-team">${escapeHtml(t)} <small>(${teamCounts[t]})</small></div>
+      <select data-simp-team="${escapeHtml(t)}">
+        <option value="home">Heim: ${escapeHtml(teams.home)}</option>
+        <option value="away">Gast: ${escapeHtml(teams.away)}</option>
+        <option value="keep">Als eigenes Team „${escapeHtml(t)}" anlegen</option>
+        <option value="skip">Nicht importieren</option>
+      </select>`).join('');
+    document.querySelectorAll('#simp-map select').forEach(sel => { sel.value = simp.mapping[sel.getAttribute('data-simp-team')]; });
+    document.getElementById('simp-season-opt').textContent = 'Diese Saison (' + seasonLabel(0) + ')';
+    document.getElementById('simp-season').value = 'file';
+    document.getElementById('simp-overwrite').checked = false;
+    simpRenderResult();
+    document.getElementById('simp-overlay').classList.remove('hidden');
+  }
+
+  function simpCompute(){
+    const overwrite = document.getElementById('simp-overwrite').checked;
+    const res = { added:[], updated:[], kept:[], unchanged:0, skipped:0, unknown:new Set() };
+    const index = new Map();
+    const keyOf = (team, name, type, season) => [team, name, type, season].map(pimpNorm).join('|');
+    stats.forEach(s => { index.set(keyOf(s.team, s.name, s.statType, s.season), s); });
+    const pending = new Set();
+
+    simp.records.forEach(rec => {
+      const m = simp.mapping[rec.team] || 'keep';
+      if(m === 'skip'){ res.skipped++; return; }
+      const team = m === 'home' ? teams.home : (m === 'away' ? teams.away : rec.team);
+      const season = simpSeasonFor(rec);
+      const key = keyOf(team, rec.name, rec.statType, season);
+      if(pending.has(key)){ res.skipped++; return; }
+      pending.add(key);
+
+      if(pimpNorm(rec.name) !== pimpNorm(team) && !players.some(p => pimpNorm(p.name) === pimpNorm(rec.name) && pimpNorm(p.team) === pimpNorm(team))) res.unknown.add(rec.name + ' (' + team + ')');
+
+      const existing = index.get(key);
+      if(!existing){ res.added.push({ rec, team, season }); return; }
+
+      const patch = {}, changes = [], kept = [];
+      if(String(existing.value) !== rec.value){
+        if(overwrite){ patch.value = rec.value; changes.push({ label:'Wert', old:existing.value, nw:rec.value }); }
+        else kept.push({ label:'Wert', old:existing.value, nw:rec.value });
+      }
+      if(rec.remarks && String(existing.remarks || '') !== rec.remarks){
+        if(!existing.remarks || overwrite){ patch.remarks = rec.remarks; changes.push({ label:'Bemerkung', old:existing.remarks || '', nw:rec.remarks }); }
+        else kept.push({ label:'Bemerkung', old:existing.remarks, nw:rec.remarks });
+      }
+      if(changes.length) res.updated.push({ existing, patch, changes });
+      else res.unchanged++;
+      if(kept.length) res.kept.push({ existing, kept });
+    });
+    return res;
+  }
+
+  function simpRenderResult(){
+    const res = simpCompute();
+    const v = x => x === '' || x == null ? '–' : escapeHtml(x);
+    const chips = `
+      <div class="pimp-summary">
+        <span class="pimp-chip new"><b>${res.added.length}</b> neu</span>
+        <span class="pimp-chip upd"><b>${res.updated.length}</b> ergänzt/aktualisiert</span>
+        <span class="pimp-chip"><b>${res.unchanged}</b> unverändert</span>
+        ${res.skipped ? `<span class="pimp-chip"><b>${res.skipped}</b> übersprungen</span>` : ''}
+        ${simp.errors.length ? `<span class="pimp-chip err"><b>${simp.errors.length}</b> fehlerhaft</span>` : ''}
+      </div>`;
+
+    const addedHtml = res.added.length ? `
+      <details class="pimp-detail" ${res.added.length <= 12 ? 'open' : ''}><summary>Neue Statistiken (${res.added.length})</summary><ul>
+        ${res.added.map(a => `<li><b>${escapeHtml(a.rec.name)}</b> · ${escapeHtml(a.team)} · ${escapeHtml(a.rec.statType)}: ${escapeHtml(a.rec.value)}${a.season ? ' <i>(' + escapeHtml(a.season) + ')</i>' : ''}</li>`).join('')}
+      </ul></details>` : '';
+    const updatedHtml = res.updated.length ? `
+      <details class="pimp-detail" ${res.updated.length <= 8 ? 'open' : ''}><summary>Änderungen an bestehenden Statistiken (${res.updated.length})</summary><ul>
+        ${res.updated.map(u => `<li><b>${escapeHtml(u.existing.name)}</b> · ${escapeHtml(u.existing.statType)}: ${u.changes.map(c => `${c.label} ${c.old !== '' && c.old != null ? `<span class="pimp-old">${v(c.old)}</span> → ` : ''}${v(c.nw)}`).join('; ')}</li>`).join('')}
+      </ul></details>` : '';
+    const keptHtml = res.kept.length ? `
+      <details class="pimp-detail"><summary>Abweichende Werte, die nicht übernommen werden (${res.kept.length})</summary><ul>
+        ${res.kept.map(k => `<li><b>${escapeHtml(k.existing.name)}</b> · ${escapeHtml(k.existing.statType)}: ${k.kept.map(c => `${c.label}: gespeichert „${v(c.old)}", Datei „${v(c.nw)}"`).join('; ')}</li>`).join('')}
+      </ul></details>` : '';
+    const problems = simp.errors.concat(simp.warnings);
+    if(res.unknown.size) problems.push('Nicht in der Spielerliste (Statistik wird trotzdem angelegt): ' + Array.from(res.unknown).join(', '));
+    const problemsHtml = problems.length ? `
+      <details class="pimp-detail"><summary>Hinweise und Fehler (${problems.length})</summary><ul>
+        ${problems.map(p => `<li>${escapeHtml(p)}</li>`).join('')}
+      </ul></details>` : '';
+
+    document.getElementById('simp-result').innerHTML = chips + addedHtml + updatedHtml + keptHtml + problemsHtml;
+    document.getElementById('simp-ok').disabled = (res.added.length + res.updated.length) === 0;
+  }
+
+  function simpClose(){
+    document.getElementById('simp-overlay').classList.add('hidden');
+    simp = { records:[], errors:[], warnings:[], mapping:{}, fileName:'' };
+  }
+
+  async function simpApply(){
+    const res = simpCompute();
+    res.updated.forEach(u => Object.assign(u.existing, u.patch));
+    res.added.forEach((a, i) => {
+      stats.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,7) + i,
+        name: a.rec.name, team: a.team, color: '', statType: a.rec.statType, value: a.rec.value,
+        season: a.season, remarks: a.rec.remarks, createdAt: Date.now()
+      });
+    });
+    await persistStats();
+    renderStatsList();
+    renderChips();
+    renderResults();
+    renderQuickStatRoster();
+    if(document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+    simpClose();
+    showToast('Statistik-Import fertig: ' + res.added.length + ' neu, ' + res.updated.length + ' aktualisiert.');
+  }
+
+  document.getElementById('stat-import-input').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      const data = JSON.parse(await file.text());
+      const list = simpExtractList(data);
+      if(!list) throw new Error('invalid-format');
+      simpOpen(file.name, list);
+    }catch(err){
+      showToast('Die Datei konnte nicht gelesen werden. Erwartet wird eine Statistik-Datei (Format „kartei-statistiken") oder eine Kartei-Export-Datei.', true);
+    }
+    e.target.value = '';
+  });
+  document.getElementById('simp-map').addEventListener('change', (e)=>{
+    const sel = e.target.closest('select[data-simp-team]');
+    if(!sel) return;
+    simp.mapping[sel.getAttribute('data-simp-team')] = sel.value;
+    simpRenderResult();
+  });
+  document.getElementById('simp-season').addEventListener('change', simpRenderResult);
+  document.getElementById('simp-overwrite').addEventListener('change', simpRenderResult);
+  document.getElementById('simp-cancel').addEventListener('click', simpClose);
+  document.getElementById('simp-ok').addEventListener('click', simpApply);
+
+  document.getElementById('stat-export-btn').addEventListener('click', ()=>{
+    const data = {
+      exportFormat: SIMP_FORMAT,
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      stats: stats.map(s => ({
+        name: s.name, team: s.team || '', statType: s.statType, value: s.value, season: s.season || '', remarks: s.remarks || ''
+      }))
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kartei-statistiken-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
 
   /* ---------- Init ---------- */
